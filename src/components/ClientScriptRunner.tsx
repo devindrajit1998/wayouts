@@ -3,68 +3,78 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
-/**
- * Re-runs the legacy theme initializer after Next replaces route content.
- * The theme scripts are loaded with afterInteractive, so the first effect can
- * otherwise run before custom.js has registered initTourvex.
- */
 export default function ClientScriptRunner() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname.startsWith('/admin') || typeof window === 'undefined') return;
+    // -------------------------------------------------------
+    // 1. Close mobile navbar on route change
+    // -------------------------------------------------------
+    const navbarCollapse = document.getElementById('navbar');
+    if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+      navbarCollapse.classList.remove('show');
+    }
 
-    let cancelled = false;
-    let attempts = 0;
-    let timer: ReturnType<typeof setTimeout> | undefined;
+    // -------------------------------------------------------
+    // 2. Dynamic background image setting
+    // -------------------------------------------------------
+    const bgElements = document.querySelectorAll('[data-background]');
+    bgElements.forEach((el) => {
+      const bg = el.getAttribute('data-background');
+      if (bg) {
+        (el as HTMLElement).style.backgroundImage = `url(${bg})`;
+      }
+    });
 
-    const initialize = () => {
-      if (cancelled) return;
+    // -------------------------------------------------------
+    // 3. Ensure header container and text elements are visible
+    //    after route transition (clear stale inline styles)
+    // -------------------------------------------------------
+    if (typeof window !== 'undefined') {
+      const gsap = (window as any).gsap;
 
-      const win = window as any;
-      if (typeof win.initTourvex !== 'function') {
-        // Wait for the afterInteractive scripts instead of silently missing
-        // initialization on a fast client-side navigation.
-        if (attempts++ < 40) {
-          timer = setTimeout(initialize, 50);
-        }
-        return;
+      if (gsap) {
+        gsap.killTweensOf('header.full-height, header.full-height *');
+        gsap.set(
+          'header .container, header .cont, .full-height .cont, header h6, header h2, header p, header .butn-arrow2',
+          { clearProps: 'opacity,visibility,transform,translate,scale,rotate' }
+        );
       }
 
-      // Let React finish committing the route before querying its elements.
-      requestAnimationFrame(() => {
-        if (cancelled) return;
-
-        const navbarCollapse = document.getElementById('navbar');
-        navbarCollapse?.classList.remove('show');
-
-        win.initTourvex();
-
-        const ScrollTrigger = win.ScrollTrigger;
-        const ScrollSmoother = win.ScrollSmoother;
-
-        if (ScrollSmoother?.get()) {
-          ScrollSmoother.get().effects('[data-speed], [data-lag]', {});
-        }
-
-        // Images and fonts can change layout after the route is committed.
-        // Refresh once now and once after those dimensions settle.
-        ScrollTrigger?.refresh(true);
-        ScrollTrigger?.update();
-        timer = setTimeout(() => {
-          ScrollTrigger?.refresh(true);
-          ScrollTrigger?.update();
-        }, 100);
+      // Ensure header elements are visible even if gsap hasn't loaded yet
+      const headerContainer = document.querySelectorAll('header, header .container, header .cont, .full-height .cont');
+      headerContainer.forEach((el) => {
+        (el as HTMLElement).style.opacity = '1';
+        (el as HTMLElement).style.transform = 'none';
+        (el as HTMLElement).style.visibility = 'visible';
       });
-    };
+    }
 
-    initialize();
+    // -------------------------------------------------------
+    // 4. Run the Tourvex global initializer.
+    //    This now handles ALL re-initialization:
+    //    - Swiper destroy + recreate
+    //    - ScrollTrigger cleanup + refresh
+    //    - ScrollSmoother refresh
+    //    - WOW, counters, marquee, popups, isotope
+    //
+    //    We NO LONGER do separate ScrollTrigger.refresh() or
+    //    ScrollSmoother.get().effects() here — that was causing
+    //    double-refresh and ordering bugs. initTourvex handles
+    //    everything with the correct sequence + RAF timing.
+    // -------------------------------------------------------
+    if (typeof window !== 'undefined' && (window as any).initTourvex) {
+      // Defer to next macrotask so React has fully committed the
+      // new route's DOM to the document before we scan for elements.
+      const timer = setTimeout(() => {
+        (window as any).initTourvex();
+      }, 50);
 
-    return () => {
-      cancelled = true;
-      if (timer) clearTimeout(timer);
-    };
+      return () => clearTimeout(timer);
+    }
   }, [pathname]);
 
   return null;
 }
+
+

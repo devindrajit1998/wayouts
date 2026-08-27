@@ -937,20 +937,13 @@
     }
 
 
-    /* Export global initializer for Next.js route transitions */
     window.initTourvex = function () {
-        // Remove any animation state left by legacy scripts before measuring
-        // newly mounted route content. HomeHero also performs a pre-paint
-        // cleanup scoped to its own DOM subtree.
-        if (typeof gsap !== "undefined") {
-            gsap.killTweensOf('header.full-height, header.full-height *');
-            gsap.set('header.full-height .container, header.full-height .cont, header.full-height h6, header.full-height h2, header.full-height p, header.full-height .butn-arrow2', {
-                clearProps: 'opacity,visibility,transform,translate,scale,rotate'
-            });
-        }
 
-        // Discard triggers that still retain elements from the previous route,
-        // then create animations for newly mounted route content.
+        // -------------------------------------------------------
+        // 0. TEARDOWN — clean up stale state before re-initializing
+        // -------------------------------------------------------
+
+        // 0a. Kill ScrollTriggers whose trigger elements left the DOM
         if (typeof ScrollTrigger !== "undefined") {
             ScrollTrigger.getAll().forEach(function (trigger) {
                 var triggerElement = trigger.trigger;
@@ -959,18 +952,74 @@
                 }
             });
         }
+
+        // 0b. Destroy orphaned Swiper instances.
+        //     When React unmounts a slider's DOM, the Swiper JS object
+        //     still lives in memory with active listeners. We must
+        //     destroy it before creating a new one.
+        var swiperSelectors = [
+            '.slider-prlx .parallax-slider',
+            '.swiper-testim',
+            '.team-slider',
+            '.galleryscroll-slider'
+        ];
+        swiperSelectors.forEach(function (sel) {
+            document.querySelectorAll(sel).forEach(function (el) {
+                if (el.swiper && typeof el.swiper.destroy === 'function') {
+                    try { el.swiper.destroy(true, true); } catch (e) {}
+                    el.swiper = null;
+                }
+            });
+        });
+
+        // 0c. Clear data-tourvex-* init guards so re-mounted elements
+        //     can be re-initialized. Without this, React DOM reuse
+        //     causes the guard to persist and blocks re-init.
+        document.querySelectorAll('[data-tourvex-scroll-initialized]').forEach(function (el) {
+            delete el.dataset.tourvexScrollInitialized;
+        });
+        document.querySelectorAll('[data-tourvex-wow-initialized]').forEach(function (el) {
+            delete el.dataset.tourvexWowInitialized;
+        });
+        document.querySelectorAll('[data-tourvex-counter-initialized]').forEach(function (el) {
+            delete el.dataset.tourvexCounterInitialized;
+        });
+        document.querySelectorAll('[data-tourvex-marquee-initialized]').forEach(function (el) {
+            delete el.dataset.tourvexMarqueeInitialized;
+        });
+        document.querySelectorAll('[data-tourvex-popup-initialized]').forEach(function (el) {
+            delete el.dataset.tourvexPopupInitialized;
+        });
+
+        // -------------------------------------------------------
+        // 1. GSAP / HERO cleanup — kill stale hero tweens
+        // -------------------------------------------------------
+        if (typeof gsap !== "undefined") {
+            gsap.killTweensOf('header.full-height, header.full-height *');
+            gsap.set(
+                'header.full-height .container, header.full-height .cont, header.full-height h6, header.full-height h2, header.full-height p, header.full-height .butn-arrow2',
+                { clearProps: 'opacity,visibility,transform,translate,scale,rotate' }
+            );
+        }
+
+        // -------------------------------------------------------
+        // 2. SCROLL ANIMATIONS (re-create for newly mounted elements)
+        // -------------------------------------------------------
         initScrollAnimations();
 
-        // Dynamic background images
+        // -------------------------------------------------------
+        // 3. DYNAMIC BACKGROUND IMAGES
+        // -------------------------------------------------------
         $(".bg-img, section, [data-background]").each(function () {
             if ($(this).attr("data-background")) {
                 $(this).css("background-image", "url(" + $(this).data("background") + ")");
             }
         });
 
-        // WOW's native window-scroll observer does not reliably detect elements
-        // inserted inside ScrollSmoother after a Next.js route transition.
-        // Back newly mounted WOW elements with ScrollTrigger instead.
+        // -------------------------------------------------------
+        // 4. WOW — backed by ScrollTrigger (more reliable than
+        //    native WOW's IntersectionObserver inside ScrollSmoother)
+        // -------------------------------------------------------
         if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
             gsap.utils.toArray('.wow').forEach(function (element) {
                 if (element.dataset.tourvexWowInitialized) return;
@@ -1004,10 +1053,12 @@
             new WOW({ animateClass: 'animated', offset: 100 }).init();
         }
 
-        // Rolling text in newly mounted elements
+        // -------------------------------------------------------
+        // 5. ROLLING TEXT (with duplicate-wrap guard)
+        // -------------------------------------------------------
         $('.rolling-text').each(function () {
             const $el = $(this);
-            if ($el.children('.block').length) return; // avoid duplicate wrapping
+            if ($el.children('.block').length) return;
             const innerText = $el.text();
             $el.empty();
             const $textContainer = $('<div>').addClass('block');
@@ -1018,7 +1069,9 @@
             $el.append($textContainer).append($textContainer.clone());
         });
 
-        // CounterUp
+        // -------------------------------------------------------
+        // 6. COUNTER (with init guard)
+        // -------------------------------------------------------
         if ($.fn.counterUp) {
             $('.counter').each(function () {
                 var $counter = $(this);
@@ -1029,8 +1082,9 @@
             });
         }
 
-        // Marquee ticker. The plugin duplicates its contents, so initialize
-        // only newly mounted elements.
+        // -------------------------------------------------------
+        // 7. MARQUEE (with init guard — plugin duplicates content)
+        // -------------------------------------------------------
         if ($.fn.marquee) {
             $('.js-marquee-wrapper').each(function () {
                 var $marquee = $(this);
@@ -1048,8 +1102,9 @@
             });
         }
 
-        // Magnific Popup. Namespace the marker because re-binding the same
-        // elements on every route transition can produce duplicate callbacks.
+        // -------------------------------------------------------
+        // 8. MAGNIFIC POPUP (with init guard)
+        // -------------------------------------------------------
         if ($.fn.magnificPopup) {
             $('.gallery').each(function () {
                 var $gallery = $(this);
@@ -1079,7 +1134,9 @@
             });
         }
 
-        // Isotope Gallery & Tour Packages
+        // -------------------------------------------------------
+        // 9. ISOTOPE (with init guard)
+        // -------------------------------------------------------
         if ($.fn.isotope) {
             var $grid = $('.gallery-wrap');
             if ($grid.length) {
@@ -1108,7 +1165,9 @@
             });
         }
 
-        // Testimonials2 expandable accordion items
+        // -------------------------------------------------------
+        // 10. TESTIMONIALS 2 (expandable accordion items)
+        // -------------------------------------------------------
         if ($('.testimonials2').length) {
             $('.testimonials2').each(function (index, value) {
                 var valueObj = $(value),
@@ -1127,9 +1186,12 @@
             });
         }
 
-        // Swiper Instances
+        // -------------------------------------------------------
+        // 11. SWIPER — fresh instances (teardown already done above)
+        // -------------------------------------------------------
         if (typeof Swiper !== "undefined") {
-            // Parallax slider
+
+            // Parallax (hero) slider
             if ($('.slider-prlx .parallax-slider').length && !$('.slider-prlx .parallax-slider')[0].swiper) {
                 new Swiper('.slider-prlx .parallax-slider', {
                     speed: 1000,
@@ -1195,17 +1257,32 @@
             }
         }
 
-        // Recalculate the transformed smooth-scroll content before measuring
-        // route-specific triggers.
+        // -------------------------------------------------------
+        // 12. REFRESH — CRITICAL ORDERING FIX
+        //
+        // ScrollSmoother transforms the content wrapper (applies
+        // translate). ScrollTrigger must measure AFTER those
+        // transforms settle. So:
+        //   1. ScrollSmoother.effects() + refresh()
+        //   2. requestAnimationFrame → ScrollTrigger.refresh()
+        //
+        // The original code called ScrollTrigger.refresh()
+        // synchronously, measuring positions BEFORE the smoother
+        // had recalculated — causing triggers to point at wrong
+        // scroll positions after route change.
+        // -------------------------------------------------------
         if (typeof ScrollSmoother !== "undefined" && ScrollSmoother.get()) {
             var smoother = ScrollSmoother.get();
             smoother.effects('[data-speed], [data-lag]', {});
             if (typeof smoother.refresh === 'function') smoother.refresh();
         }
+
         if (typeof ScrollTrigger !== "undefined") {
-            ScrollTrigger.clearScrollMemory('manual');
-            ScrollTrigger.refresh(true);
-            ScrollTrigger.update();
+            requestAnimationFrame(function () {
+                ScrollTrigger.clearScrollMemory('manual');
+                ScrollTrigger.refresh(true);
+                ScrollTrigger.update();
+            });
         }
     };
 
