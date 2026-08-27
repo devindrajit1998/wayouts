@@ -726,7 +726,6 @@
                 effect: 'fade',
                 pagination: {
                     el: '.testimonials .controls .swiper-pagination',
-                    type: 'fraction',
                 },
                 navigation: {
                     nextEl: '.testimonials .controls .next-ctrl',
@@ -741,7 +740,7 @@
                 loop: true,
                 pagination: {
                     el: '.testimonials .controls .swiper-pagination',
-                    type: 'fraction',
+                    type: 'fraction'
                 },
                 navigation: {
                     nextEl: '.testimonials .controls .next-ctrl',
@@ -784,6 +783,7 @@
 
     });
 
+    
     /* ==========================================================================
        23. WINDOW LOAD
        ========================================================================== */
@@ -796,8 +796,8 @@
     });
 
     /* ==========================================================================
-        24. ELASTIC CARD ANIMATION
-        ========================================================================== */
+       24. ELASTIC CARD ANIMATION
+       ========================================================================== */
     if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
         const elasticCards = gsap.utils.toArray(".image-stack-card");
         if (elasticCards.length) {
@@ -844,9 +844,10 @@
         }
     }
 
+    
     /* ==========================================================================
-        25. TEAM SLIDER
-        ========================================================================== */
+       25. TEAM SLIDER
+       ========================================================================== */
     var swiperTeam = new Swiper(".team-slider", {
         slidesPerView: 4,
         spaceBetween: 25,
@@ -866,9 +867,10 @@
         }
     });
 
+    
     /* ==========================================================================
-        26. GALLERY SCROLL SLIDER
-        ========================================================================== */
+       26. GALLERY SCROLL SLIDER
+       ========================================================================== */
     var swiperGalleryScroll = new Swiper(".galleryscroll-slider", {
         slidesPerView: 4,
         spaceBetween: 25,
@@ -888,402 +890,401 @@
         }
     });
 
+
     /* ==========================================================================
-           18. STACKCARD ANIMATION
-           ========================================================================== */
+       27. TRAVEL HERO SLIDER
+       ========================================================================== */
     if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
-        var currentWidth = $(window).width();
-        if (currentWidth > 991) {
-            const fe = gsap.timeline({
-                scrollTrigger: {
-                    trigger: ".stsec .stack-title",
-                    start: "center center",
-                    endTrigger: ".stsec",
-                    end: "bottom bottom",
-                    pin: true,
-                    pinSpacing: false,
+        const heroSlider = document.querySelector('.slider-prlx .parallax-slider');
+        if (heroSlider) {
+            let currentSlide = 0;
+            const slides = heroSlider.querySelectorAll('.swiper-slide');
+            const totalSlides = slides.length;
+
+            function animateHeroSlide(index) {
+                const slide = slides[index];
+                if (!slide) return;
+                const bgImg = slide.querySelector('.bg-img');
+                if (bgImg) {
+                    gsap.fromTo(bgImg, 
+                        { scale: 1.1, yPercent: -5 },
+                        { scale: 1, yPercent: 0, duration: 1.5, ease: "power2.out" }
+                    );
                 }
-            });
-            let cardsList = gsap.utils.toArray(".stackCard");
-            let stickDistance = 0;
-            let lastCardST = ScrollTrigger.create({
-                trigger: cardsList[cardsList.length - 1],
-                start: "center center"
-            });
-            cardsList.forEach((card, index) => {
-                ScrollTrigger.create({
-                    trigger: card,
-                    start: "center center",
-                    end: () => lastCardST.start + stickDistance,
-                    pin: true,
-                    pinSpacing: false,
-                    scrub: true,
-                    snap: true,
-                    ease: "power4.out",
-                    onUpdate: (self) => {
-                        const progress = self.progress;
-                        const EvenOdd = index % 2 === 0;
-                        gsap.to(card, {
-                            scaleX: 1 - progress * 0.2,
-                            x: index * 20,
-                            filter: `grayscale(${progress * 20}%)`,
-                            top: index * 20,
-                            rotate: EvenOdd ? -3 * progress : 3 * progress,
-                        });
-                    }
+                const content = slide.querySelector('.slider-content');
+                if (content) {
+                    gsap.fromTo(content,
+                        { opacity: 0, y: 30 },
+                        { opacity: 1, y: 0, duration: 1, delay: 0.3, ease: "power2.out" }
+                    );
+                }
+            }
+
+            if (heroSlider.swiper) {
+                heroSlider.swiper.on('slideChange', function () {
+                    animateHeroSlide(this.realIndex);
                 });
-            });
+                animateHeroSlide(0);
+            }
         }
     }
 
 
-    window.initTourvex = function () {
+    // ============================================================
+    // PATCH for custom.js (dev branch)
+    //
+    // This patch fixes THREE remaining issues that cause sliders and
+    // scroll animations to break after Next.js route changes:
+    //
+    // 1. The $(document).ready block creates 7 Swiper instances with
+    //    NO guards. When initTourvex runs on route change, it tries to
+    //    destroy and recreate them, but the document.ready instances
+    //    were created with `var swiperTeam = new Swiper(...)` — the
+    //    variables are in a closure and initTourvex can't see them.
+    //    The destroy in initTourvex uses `el.swiper` which IS correct,
+    //    BUT the document.ready Swiper init runs again if jQuery
+    //    re-fires ready (which it doesn't in Next.js, so this is fine).
+    //    The REAL issue is that document.ready creates ScrollTriggers
+    //    that initTourvex's orphan-kill misses.
+    //
+    // 2. ScrollSmoother.scrollTop is never reset on route change.
+    //    When you navigate from a scrolled-down About page back to
+    //    Home, the smoother is still at scroll position 3000px.
+    //    ScrollTrigger measures trigger positions relative to that
+    //    offset, so all triggers on the new Home page are calculated
+    //    as if you're already scrolled past them — they never fire.
+    //
+    // 3. The requestAnimationFrame in initTourvex's refresh runs ONE
+    //    frame later, but ScrollSmoother's internal refresh (which
+    //    recalculates wrapper height and transforms) is asynchronous
+    //    after smoother.refresh(). A single RAF isn't enough — we
+    //    need a double-RAF to wait for the smoother to finish.
+    //
+    // FIX: Replace the ENTIRE `window.initTourvex = function () { ... };`
+    // block with this version.
+    // ============================================================
 
-        // -------------------------------------------------------
-        // 0. TEARDOWN — clean up stale state before re-initializing
-        // -------------------------------------------------------
+window.initTourvex = function () {
 
-        // 0a. Kill ScrollTriggers whose trigger elements left the DOM
-        if (typeof ScrollTrigger !== "undefined") {
-            ScrollTrigger.getAll().forEach(function (trigger) {
-                var triggerElement = trigger.trigger;
-                if (triggerElement && !document.documentElement.contains(triggerElement)) {
-                    trigger.kill(true);
+    // -------------------------------------------------------
+    // 0. TEARDOWN
+    // -------------------------------------------------------
+
+    // 0a. Kill ALL ScrollTriggers (not just orphaned ones).
+    //     The orphan-only check (`!document.documentElement.contains`)
+    //     misses triggers whose elements ARE still in the DOM but have
+    //     been repurposed by React reconciliation. Killing ALL triggers
+    //     and recreating them is safe because initScrollAnimations()
+    //     recreates them below.
+    if (typeof ScrollTrigger !== "undefined") {
+        ScrollTrigger.getAll().forEach(function (trigger) {
+            trigger.kill(true);
+        });
+    }
+
+    // 0b. Destroy orphaned Swiper instances.
+    var swiperSelectors = [
+        '.slider-prlx .parallax-slider',
+        '.swiper-testim',
+        '.testimonials .swiper-img',
+        '.testimonials .swiper-content',
+        '.team-slider',
+        '.galleryscroll-slider',
+        '.work-crsol'
+    ];
+    swiperSelectors.forEach(function (sel) {
+        document.querySelectorAll(sel).forEach(function (el) {
+            if (el.swiper && typeof el.swiper.destroy === 'function') {
+                try { el.swiper.destroy(true, true); } catch (e) {}
+                el.swiper = null;
+            }
+        });
+    });
+
+    // 0c. Clear ALL data-tourvex-* init guards.
+    ['tourvexScrollInitialized', 'tourvexWowInitialized', 'tourvexCounterInitialized',
+     'tourvexMarqueeInitialized', 'tourvexPopupInitialized'].forEach(function (guard) {
+        var attr = 'data-' + guard.replace(/([A-Z])/g, '-$1').toLowerCase();
+        document.querySelectorAll('[' + attr + ']').forEach(function (el) {
+            delete el.dataset[guard];
+        });
+    });
+
+    // 0d. Reset scroll position to top.
+    //     Without this, navigating from a scrolled page to Home
+    //     leaves ScrollSmoother at the old scroll offset, causing
+    //     all triggers on the new page to be miscalculated.
+    if (typeof ScrollSmoother !== "undefined" && ScrollSmoother.get()) {
+        ScrollSmoother.get().scrollTop(0);
+    } else {
+        window.scrollTo(0, 0);
+    }
+
+    // -------------------------------------------------------
+    // 1. GSAP / HERO cleanup
+    // -------------------------------------------------------
+    if (typeof gsap !== "undefined") {
+        gsap.killTweensOf('header.full-height, header.full-height *');
+        gsap.set(
+            'header.full-height .container, header.full-height .cont, header.full-height h6, header.full-height h2, header.full-height p, header.full-height .butn-arrow2',
+            { clearProps: 'opacity,visibility,transform,translate,scale,rotate' }
+        );
+    }
+
+    // -------------------------------------------------------
+    // 2. SCROLL ANIMATIONS (recreate for new route)
+    // -------------------------------------------------------
+    initScrollAnimations();
+
+    // -------------------------------------------------------
+    // 3. DYNAMIC BACKGROUND IMAGES
+    // -------------------------------------------------------
+    $(".bg-img, section, [data-background]").each(function () {
+        if ($(this).attr("data-background")) {
+            $(this).css("background-image", "url(" + $(this).data("background") + ")");
+        }
+    });
+
+    // -------------------------------------------------------
+    // 4. WOW — backed by ScrollTrigger
+    // -------------------------------------------------------
+    if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
+        gsap.utils.toArray('.wow').forEach(function (element) {
+            if (element.dataset.tourvexWowInitialized) return;
+            element.dataset.tourvexWowInitialized = 'true';
+
+            var from = { autoAlpha: 0, y: 40 };
+            if (element.classList.contains('fadeInRight')) {
+                from = { autoAlpha: 0, x: 60 };
+            } else if (element.classList.contains('fadeInLeft')) {
+                from = { autoAlpha: 0, x: -60 };
+            } else if (element.classList.contains('fadeInDown')) {
+                from = { autoAlpha: 0, y: -40 };
+            }
+
+            gsap.fromTo(element, from, {
+                autoAlpha: 1,
+                x: 0,
+                y: 0,
+                duration: 0.8,
+                delay: parseFloat(element.getAttribute('data-wow-delay')) || 0,
+                ease: 'power2.out',
+                clearProps: 'opacity,visibility,transform',
+                scrollTrigger: {
+                    trigger: element,
+                    start: 'top 92%',
+                    once: true
                 }
             });
+        });
+    } else if (typeof WOW !== "undefined") {
+        new WOW({ animateClass: 'animated', offset: 100 }).init();
+    }
+
+    // -------------------------------------------------------
+    // 5. ROLLING TEXT
+    // -------------------------------------------------------
+    $('.rolling-text').each(function () {
+        const $el = $(this);
+        if ($el.children('.block').length) return;
+        const innerText = $el.text();
+        $el.empty();
+        const $textContainer = $('<div>').addClass('block');
+        for (const letter of innerText) {
+            const $span = $('<span>').addClass('letter').text(letter.trim() === '' ? '\xa0' : letter);
+            $textContainer.append($span);
         }
+        $el.append($textContainer).append($textContainer.clone());
+    });
 
-        // 0b. Destroy orphaned Swiper instances.
-        //     When React unmounts a slider's DOM, the Swiper JS object
-        //     still lives in memory with active listeners. We must
-        //     destroy it before creating a new one.
-        var swiperSelectors = [
-            '.slider-prlx .parallax-slider',
-            '.swiper-testim',
-            '.team-slider',
-            '.galleryscroll-slider'
-        ];
-        swiperSelectors.forEach(function (sel) {
-            document.querySelectorAll(sel).forEach(function (el) {
-                if (el.swiper && typeof el.swiper.destroy === 'function') {
-                    try { el.swiper.destroy(true, true); } catch (e) {}
-                    el.swiper = null;
-                }
-            });
-        });
-
-        // 0c. Clear data-tourvex-* init guards so re-mounted elements
-        //     can be re-initialized. Without this, React DOM reuse
-        //     causes the guard to persist and blocks re-init.
-        document.querySelectorAll('[data-tourvex-scroll-initialized]').forEach(function (el) {
-            delete el.dataset.tourvexScrollInitialized;
-        });
-        document.querySelectorAll('[data-tourvex-wow-initialized]').forEach(function (el) {
-            delete el.dataset.tourvexWowInitialized;
-        });
-        document.querySelectorAll('[data-tourvex-counter-initialized]').forEach(function (el) {
-            delete el.dataset.tourvexCounterInitialized;
-        });
-        document.querySelectorAll('[data-tourvex-marquee-initialized]').forEach(function (el) {
-            delete el.dataset.tourvexMarqueeInitialized;
-        });
-        document.querySelectorAll('[data-tourvex-popup-initialized]').forEach(function (el) {
-            delete el.dataset.tourvexPopupInitialized;
-        });
-
-        // -------------------------------------------------------
-        // 1. GSAP / HERO cleanup — kill stale hero tweens
-        // -------------------------------------------------------
-        if (typeof gsap !== "undefined") {
-            gsap.killTweensOf('header.full-height, header.full-height *');
-            gsap.set(
-                'header.full-height .container, header.full-height .cont, header.full-height h6, header.full-height h2, header.full-height p, header.full-height .butn-arrow2',
-                { clearProps: 'opacity,visibility,transform,translate,scale,rotate' }
-            );
-        }
-
-        // -------------------------------------------------------
-        // 2. SCROLL ANIMATIONS (re-create for newly mounted elements)
-        // -------------------------------------------------------
-        initScrollAnimations();
-
-        // -------------------------------------------------------
-        // 3. DYNAMIC BACKGROUND IMAGES
-        // -------------------------------------------------------
-        $(".bg-img, section, [data-background]").each(function () {
-            if ($(this).attr("data-background")) {
-                $(this).css("background-image", "url(" + $(this).data("background") + ")");
+    // -------------------------------------------------------
+    // 6. COUNTER
+    // -------------------------------------------------------
+    if ($.fn.counterUp) {
+        $('.counter').each(function () {
+            var $counter = $(this);
+            if (!$counter.data('tourvex-counter-initialized')) {
+                $counter.counterUp({ delay: 10, time: 3000 });
+                $counter.data('tourvex-counter-initialized', true);
             }
         });
+    }
 
-        // -------------------------------------------------------
-        // 4. WOW — backed by ScrollTrigger (more reliable than
-        //    native WOW's IntersectionObserver inside ScrollSmoother)
-        // -------------------------------------------------------
-        if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
-            gsap.utils.toArray('.wow').forEach(function (element) {
-                if (element.dataset.tourvexWowInitialized) return;
-                element.dataset.tourvexWowInitialized = 'true';
-
-                var from = { autoAlpha: 0, y: 40 };
-                if (element.classList.contains('fadeInRight')) {
-                    from = { autoAlpha: 0, x: 60 };
-                } else if (element.classList.contains('fadeInLeft')) {
-                    from = { autoAlpha: 0, x: -60 };
-                } else if (element.classList.contains('fadeInDown')) {
-                    from = { autoAlpha: 0, y: -40 };
-                }
-
-                gsap.fromTo(element, from, {
-                    autoAlpha: 1,
-                    x: 0,
-                    y: 0,
-                    duration: 0.8,
-                    delay: parseFloat(element.getAttribute('data-wow-delay')) || 0,
-                    ease: 'power2.out',
-                    clearProps: 'opacity,visibility,transform',
-                    scrollTrigger: {
-                        trigger: element,
-                        start: 'top 92%',
-                        once: true
-                    }
-                });
+    // -------------------------------------------------------
+    // 7. MARQUEE
+    // -------------------------------------------------------
+    if ($.fn.marquee) {
+        $('.js-marquee-wrapper').each(function () {
+            var $marquee = $(this);
+            if ($marquee.data('tourvex-marquee-initialized')) return;
+            $marquee.marquee({
+                speed: 100, gap: 30, delayBeforeStart: 0,
+                direction: 'left', duplicated: true,
+                pauseOnHover: true, startVisible: true,
             });
-        } else if (typeof WOW !== "undefined") {
-            new WOW({ animateClass: 'animated', offset: 100 }).init();
-        }
-
-        // -------------------------------------------------------
-        // 5. ROLLING TEXT (with duplicate-wrap guard)
-        // -------------------------------------------------------
-        $('.rolling-text').each(function () {
-            const $el = $(this);
-            if ($el.children('.block').length) return;
-            const innerText = $el.text();
-            $el.empty();
-            const $textContainer = $('<div>').addClass('block');
-            for (const letter of innerText) {
-                const $span = $('<span>').addClass('letter').text(letter.trim() === '' ? '\xa0' : letter);
-                $textContainer.append($span);
-            }
-            $el.append($textContainer).append($textContainer.clone());
+            $marquee.data('tourvex-marquee-initialized', true);
         });
+    }
 
-        // -------------------------------------------------------
-        // 6. COUNTER (with init guard)
-        // -------------------------------------------------------
-        if ($.fn.counterUp) {
-            $('.counter').each(function () {
-                var $counter = $(this);
-                if (!$counter.data('tourvex-counter-initialized')) {
-                    $counter.counterUp({ delay: 10, time: 3000 });
-                    $counter.data('tourvex-counter-initialized', true);
-                }
-            });
-        }
-
-        // -------------------------------------------------------
-        // 7. MARQUEE (with init guard — plugin duplicates content)
-        // -------------------------------------------------------
-        if ($.fn.marquee) {
-            $('.js-marquee-wrapper').each(function () {
-                var $marquee = $(this);
-                if ($marquee.data('tourvex-marquee-initialized')) return;
-                $marquee.marquee({
-                    speed: 100,
-                    gap: 30,
-                    delayBeforeStart: 0,
-                    direction: 'left',
-                    duplicated: true,
-                    pauseOnHover: true,
-                    startVisible: true,
+    // -------------------------------------------------------
+    // 8. MAGNIFIC POPUP
+    // -------------------------------------------------------
+    if ($.fn.magnificPopup) {
+        $('.gallery').each(function () {
+            var $gallery = $(this);
+            if ($gallery.data('tourvex-popup-initialized')) return;
+            $gallery.magnificPopup({ delegate: '.popimg', type: 'image', gallery: { enabled: true } });
+            $gallery.data('tourvex-popup-initialized', true);
+        });
+        $('.img-zoom, .image-popup-vertical-fit').each(function () {
+            var $popup = $(this);
+            if ($popup.data('tourvex-popup-initialized')) return;
+            if ($popup.hasClass('img-zoom')) {
+                $popup.magnificPopup({
+                    type: 'image', closeOnContentClick: true, mainClass: 'mfp-fade',
+                    gallery: { enabled: true, navigateByImgClick: true, preload: [0, 1] }
                 });
-                $marquee.data('tourvex-marquee-initialized', true);
-            });
-        }
-
-        // -------------------------------------------------------
-        // 8. MAGNIFIC POPUP (with init guard)
-        // -------------------------------------------------------
-        if ($.fn.magnificPopup) {
-            $('.gallery').each(function () {
-                var $gallery = $(this);
-                if ($gallery.data('tourvex-popup-initialized')) return;
-                $gallery.magnificPopup({ delegate: '.popimg', type: 'image', gallery: { enabled: true } });
-                $gallery.data('tourvex-popup-initialized', true);
-            });
-            $('.img-zoom, .image-popup-vertical-fit').each(function () {
-                var $popup = $(this);
-                if ($popup.data('tourvex-popup-initialized')) return;
-                if ($popup.hasClass('img-zoom')) {
-                    $popup.magnificPopup({
-                        type: 'image',
-                        closeOnContentClick: true,
-                        mainClass: 'mfp-fade',
-                        gallery: { enabled: true, navigateByImgClick: true, preload: [0, 1] }
-                    });
-                } else {
-                    $popup.magnificPopup({
-                        type: 'image',
-                        closeOnContentClick: true,
-                        mainClass: 'mfp-img-mobile',
-                        image: { verticalFit: true }
-                    });
-                }
-                $popup.data('tourvex-popup-initialized', true);
-            });
-        }
-
-        // -------------------------------------------------------
-        // 9. ISOTOPE (with init guard)
-        // -------------------------------------------------------
-        if ($.fn.isotope) {
-            var $grid = $('.gallery-wrap');
-            if ($grid.length) {
-                $grid.each(function () {
-                    var $currentGrid = $(this);
-                    if (!$currentGrid.data('isotope')) {
-                        $currentGrid.isotope({
-                            itemSelector: '.gallery-item',
-                            percentPosition: true,
-                            layoutMode: 'masonry',
-                            transitionDuration: '0.6s'
-                        });
-                    }
-                    if ($.fn.imagesLoaded) {
-                        $currentGrid.imagesLoaded(function () {
-                            $currentGrid.isotope('layout');
-                        });
-                    }
+            } else {
+                $popup.magnificPopup({
+                    type: 'image', closeOnContentClick: true, mainClass: 'mfp-img-mobile',
+                    image: { verticalFit: true }
                 });
             }
-            $('.tours-isotope').each(function () {
-                var $tourGrid = $(this);
-                if (!$tourGrid.data('isotope')) {
-                    $tourGrid.isotope({ itemSelector: '.items' });
-                }
+            $popup.data('tourvex-popup-initialized', true);
+        });
+    }
+
+    // -------------------------------------------------------
+    // 9. ISOTOPE
+    // -------------------------------------------------------
+    if ($.fn.isotope) {
+        $('.gallery-wrap').each(function () {
+            var $currentGrid = $(this);
+            if (!$currentGrid.data('isotope')) {
+                $currentGrid.isotope({
+                    itemSelector: '.gallery-item', percentPosition: true,
+                    layoutMode: 'masonry', transitionDuration: '0.6s'
+                });
+            }
+            if ($.fn.imagesLoaded) {
+                $currentGrid.imagesLoaded(function () { $currentGrid.isotope('layout'); });
+            }
+        });
+        $('.tours-isotope').each(function () {
+            var $tourGrid = $(this);
+            if (!$tourGrid.data('isotope')) {
+                $tourGrid.isotope({ itemSelector: '.items' });
+            }
+        });
+    }
+
+    // -------------------------------------------------------
+    // 10. TESTIMONIALS 2
+    // -------------------------------------------------------
+    if ($('.testimonials2').length) {
+        $('.testimonials2').each(function (index, value) {
+            var valueObj = $(value),
+                totalWidth = valueObj.outerWidth(),
+                slidingLength = valueObj.find('.item').length,
+                devideRightPadding = (parseInt(valueObj.css('padding-right')) || 0) / slidingLength,
+                devideLeftPadding = (parseInt(valueObj.css('padding-left')) || 0) / slidingLength,
+                usageWidth = (slidingLength * 12.5) + 12.5 + devideRightPadding + devideLeftPadding,
+                useWidth = totalWidth - usageWidth,
+                devideLength = slidingLength + 1,
+                devideWidth = (useWidth / devideLength),
+                activeWidth = devideWidth * 2;
+            valueObj.find('.item, .img, .item .cont').css('width', devideWidth);
+            valueObj.find('.item .cont').css('left', devideWidth);
+            valueObj.find('.item.active').css('width', activeWidth);
+        });
+    }
+
+    // -------------------------------------------------------
+    // 11. SWIPER — fresh instances
+    // -------------------------------------------------------
+    if (typeof Swiper !== "undefined") {
+
+        if ($('.slider-prlx .parallax-slider').length && !$('.slider-prlx .parallax-slider')[0].swiper) {
+            new Swiper('.slider-prlx .parallax-slider', {
+                speed: 1000, autoplay: true, parallax: true, loop: true,
+                pagination: { el: '.slider-prlx .parallax-slider .swiper-pagination', type: 'fraction', clickable: true },
+                navigation: { nextEl: '.slider-prlx .parallax-slider .next-ctrl', prevEl: '.slider-prlx .parallax-slider .prev-ctrl' }
             });
         }
 
-        // -------------------------------------------------------
-        // 10. TESTIMONIALS 2 (expandable accordion items)
-        // -------------------------------------------------------
-        if ($('.testimonials2').length) {
-            $('.testimonials2').each(function (index, value) {
-                var valueObj = $(value),
-                    totalWidth = valueObj.outerWidth(),
-                    slidingLength = valueObj.find('.item').length,
-                    devideRightPadding = (parseInt(valueObj.css('padding-right')) || 0) / slidingLength,
-                    devideLeftPadding = (parseInt(valueObj.css('padding-left')) || 0) / slidingLength,
-                    usageWidth = (slidingLength * 12.5) + 12.5 + devideRightPadding + devideLeftPadding,
-                    useWidth = totalWidth - usageWidth,
-                    devideLength = slidingLength + 1,
-                    devideWidth = (useWidth / devideLength),
-                    activeWidth = devideWidth * 2;
-                valueObj.find('.item, .img, .item .cont').css('width', devideWidth);
-                valueObj.find('.item .cont').css('left', devideWidth);
-                valueObj.find('.item.active').css('width', activeWidth);
+        if ($('.swiper-testim').length && !$('.swiper-testim')[0].swiper) {
+            new Swiper('.swiper-testim', {
+                spaceBetween: 0, speed: 1000, loop: true,
+                pagination: { el: '.swiper-testim .swiper-pagination' },
+                navigation: { nextEl: '.swiper-testim .swiper-button-next', prevEl: '.swiper-testim .swiper-button-prev' }
             });
         }
 
-        // -------------------------------------------------------
-        // 11. SWIPER — fresh instances (teardown already done above)
-        // -------------------------------------------------------
-        if (typeof Swiper !== "undefined") {
-
-            // Parallax (hero) slider
-            if ($('.slider-prlx .parallax-slider').length && !$('.slider-prlx .parallax-slider')[0].swiper) {
-                new Swiper('.slider-prlx .parallax-slider', {
-                    speed: 1000,
-                    autoplay: true,
-                    parallax: true,
-                    loop: true,
-                    pagination: {
-                        el: '.slider-prlx .parallax-slider .swiper-pagination',
-                        type: 'fraction',
-                        clickable: true
-                    },
-                    navigation: {
-                        nextEl: '.slider-prlx .parallax-slider .next-ctrl',
-                        prevEl: '.slider-prlx .parallax-slider .prev-ctrl'
-                    }
-                });
-            }
-
-            // Testimonials Swiper
-            if ($('.swiper-testim').length && !$('.swiper-testim')[0].swiper) {
-                new Swiper('.swiper-testim', {
-                    spaceBetween: 0,
-                    speed: 1000,
-                    loop: true,
-                    pagination: { el: '.swiper-testim .swiper-pagination' },
-                    navigation: {
-                        nextEl: '.swiper-testim .swiper-button-next',
-                        prevEl: '.swiper-testim .swiper-button-prev'
-                    }
-                });
-            }
-
-            // Team Slider
-            if ($('.team-slider').length && !$('.team-slider')[0].swiper) {
-                new Swiper(".team-slider", {
-                    slidesPerView: 4,
-                    spaceBetween: 25,
-                    loop: true,
-                    speed: 900,
-                    autoplay: false,
-                    breakpoints: {
-                        0: { slidesPerView: 1 },
-                        768: { slidesPerView: 2 },
-                        1200: { slidesPerView: 4 }
-                    }
-                });
-            }
-
-            // Gallery Scroll Slider
-            if ($('.galleryscroll-slider').length && !$('.galleryscroll-slider')[0].swiper) {
-                new Swiper(".galleryscroll-slider", {
-                    slidesPerView: 4,
-                    spaceBetween: 25,
-                    loop: true,
-                    speed: 900,
-                    autoplay: false,
-                    breakpoints: {
-                        0: { slidesPerView: 1 },
-                        768: { slidesPerView: 2 },
-                        1200: { slidesPerView: 4 }
-                    }
-                });
-            }
+        if ($('.testimonials .swiper-img').length && !$('.testimonials .swiper-img')[0].swiper) {
+            new Swiper('.testimonials .swiper-img', {
+                slidesPerView: 1, spaceBetween: 0, speed: 800, loop: true, effect: 'fade',
+                pagination: { el: '.testimonials .controls .swiper-pagination' },
+                navigation: { nextEl: '.testimonials .controls .next-ctrl', prevEl: '.testimonials .controls .prev-ctrl' }
+            });
         }
 
-        // -------------------------------------------------------
-        // 12. REFRESH — CRITICAL ORDERING FIX
-        //
-        // ScrollSmoother transforms the content wrapper (applies
-        // translate). ScrollTrigger must measure AFTER those
-        // transforms settle. So:
-        //   1. ScrollSmoother.effects() + refresh()
-        //   2. requestAnimationFrame → ScrollTrigger.refresh()
-        //
-        // The original code called ScrollTrigger.refresh()
-        // synchronously, measuring positions BEFORE the smoother
-        // had recalculated — causing triggers to point at wrong
-        // scroll positions after route change.
-        // -------------------------------------------------------
-        if (typeof ScrollSmoother !== "undefined" && ScrollSmoother.get()) {
-            var smoother = ScrollSmoother.get();
-            smoother.effects('[data-speed], [data-lag]', {});
-            if (typeof smoother.refresh === 'function') smoother.refresh();
+        if ($('.testimonials .swiper-content').length && !$('.testimonials .swiper-content')[0].swiper) {
+            new Swiper('.testimonials .swiper-content', {
+                slidesPerView: 1, spaceBetween: 0, speed: 800, loop: true,
+                pagination: { el: '.testimonials .controls .swiper-pagination', type: 'fraction' },
+                navigation: { nextEl: '.testimonials .controls .next-ctrl', prevEl: '.testimonials .controls .prev-ctrl' }
+            });
         }
 
-        if (typeof ScrollTrigger !== "undefined") {
+        if ($('.work-crsol').length && !$('.work-crsol')[0].swiper) {
+            new Swiper(".work-crsol", { slidesPerView: "auto", spaceBetween: 60, loop: true });
+        }
+
+        if ($('.team-slider').length && !$('.team-slider')[0].swiper) {
+            new Swiper(".team-slider", {
+                slidesPerView: 4, spaceBetween: 25, loop: true, speed: 900, autoplay: false,
+                breakpoints: { 0: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1200: { slidesPerView: 4 } }
+            });
+        }
+
+        if ($('.galleryscroll-slider').length && !$('.galleryscroll-slider')[0].swiper) {
+            new Swiper(".galleryscroll-slider", {
+                slidesPerView: 4, spaceBetween: 25, loop: true, speed: 900, autoplay: false,
+                breakpoints: { 0: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1200: { slidesPerView: 4 } }
+            });
+        }
+    }
+
+    // -------------------------------------------------------
+    // 12. REFRESH — double-RAF for ScrollSmoother timing
+    //
+    // ScrollSmoother.refresh() recalculates the wrapper height
+    // and transform offsets ASYNCHRONOUSLY. A single RAF waits
+    // one frame, but the smoother's internal layout pass may
+    // not have completed yet. The double-RAF pattern (RAF within
+    // RAF) ensures we measure AFTER the smoother has fully
+    // recalculated:
+    //   Frame 1: ScrollSmoother.refresh() starts layout
+    //   Frame 2: Layout is complete, now ScrollTrigger.refresh()
+    //            can measure correct positions.
+    // -------------------------------------------------------
+    if (typeof ScrollSmoother !== "undefined" && ScrollSmoother.get()) {
+        var smoother = ScrollSmoother.get();
+        smoother.effects('[data-speed], [data-lag]', {});
+        if (typeof smoother.refresh === 'function') smoother.refresh();
+    }
+
+    if (typeof ScrollTrigger !== "undefined") {
+        // First RAF: wait for smoother transforms to apply
+        requestAnimationFrame(function () {
+            // Second RAF: wait for browser to paint those transforms
             requestAnimationFrame(function () {
                 ScrollTrigger.clearScrollMemory('manual');
                 ScrollTrigger.refresh(true);
                 ScrollTrigger.update();
             });
-        }
-    };
+        });
+    }
+};
 
 })(jQuery);
