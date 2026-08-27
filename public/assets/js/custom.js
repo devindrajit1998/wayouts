@@ -433,9 +433,6 @@
                     zIndex: -1,
                     display: "none",
                 });
-                // Do not animate generic headers here. The layout persists while
-                // App Router replaces route content, so a global selector can
-                // leave newly mounted Home content with stale visual state.
             }
         }
 
@@ -475,173 +472,38 @@
                 });
             }
 
-            // Section effects
-            createScrollAnimation('.duru-section-scale-bg-reveal', {
-                start: "top 80%",
-                end: "bottom 60%",
-                from: { background: "#171717", scale: .8 },
-                to: { background: "inherit", scale: 1, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-section-shrink', {
-                scrub: 1, start: "top 80%", end: "bottom 20%", fromTo: true,
-                from: { scale: 1, opacity: 1 },
-                to: { scale: 0.9, opacity: 0.6, ease: "none" }
-            });
-            // CTA / UI effects
-            createScrollAnimation('.duru-cta-slide-up', {
-                start: "top 90%", end: "top 70%",
-                from: { opacity: 1, y: "+=300" },
-                to: { opacity: 1, y: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-popup-scale-in', {
-                start: "top 95%", end: "top 70%", fromTo: true,
-                from: { scale: 0 },
-                to: { scale: 1, duration: .5, immediateRender: false }
-            });
-            // Slide / Move animations
-            createScrollAnimation('.duru-slide-left', {
-                from: { x: "-=100" },
-                to: { x: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-slide-right', {
-                from: { x: "+=100" },
-                to: { x: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-slide-up', {
-                start: "top 85%",
-                from: { y: "+=100" },
-                to: { y: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-slide-down', {
-                start: "top 85%",
-                from: { y: "-=100" },
-                to: { y: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-move-from-right', {
-                start: "top 85%", end: "bottom 60%", scrub: 1, fromTo: true,
-                from: { opacity: 0, scale: 0.8, xPercent: 100, transformOrigin: "center center" },
-                to: { opacity: 1, scale: 1, xPercent: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-move-from-left', {
-                start: "top 85%", end: "bottom 60%", scrub: 1, fromTo: true,
-                from: { opacity: 0, scale: 0.8, xPercent: -100, transformOrigin: "center center" },
-                to: { opacity: 1, scale: 1, xPercent: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-image-slide-right', {
-                scrub: 2, start: "top 80%", end: "top 70%", fromTo: true,
-                from: { xPercent: -100 },
-                to: { xPercent: 0, duration: 1, immediateRender: false }
-            });
-            // Zoom / Scale animations
-            createScrollAnimation('.duru-image-zoom', {
-                start: "top 85%", fromTo: true, target: 'img', scrub: 0.3,
-                from: { scale: 1 },
-                to: { scale: 1.5, ease: "none", immediateRender: false }
-            });
-            createScrollAnimation('.duru-zoom-out', {
-                start: "top 85%", fromTo: true,
-                from: { scale: 1 },
-                to: { scale: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-scale-down-large', {
-                start: "top 85%", end: "bottom 50%", fromTo: true,
-                from: { scale: 2 },
-                to: { scale: 1, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-scale-down-medium', {
-                start: "top 85%", end: "bottom 50%", fromTo: true,
-                from: { scale: 1.5 },
-                to: { scale: 1, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-scale-in', {
-                start: "top 95%", end: "top 70%", fromTo: true,
-                from: { scale: .8 },
-                to: { scale: 1, duration: .5, immediateRender: false }
-            });
-            createScrollAnimation('.duru-bounce-reveal', {
-                start: "top 85%",
-                from: { scale: 0.6, opacity: 0 },
-                to: { scale: 1, opacity: 1, duration: 1, ease: "elastic.out(1, 0.5)" }
-            });
-            // Text animations
-            createScrollAnimation('.duru-text-color-light', {
-                start: "top 70%", end: "bottom 40%", fromTo: true,
-                from: { color: "#171717" },
-                to: { color: "#fff", duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-stagger-reveal', {
-                start: "top 85%", fromTo: true,
-                from: { opacity: 0, y: 40 },
-                to: { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, ease: "power3.out" }
-            });
-            createScrollAnimation('.duru-text-blur-reveal', {
-                start: "top 85%",
-                from: { opacity: 0, y: 20, filter: "blur(6px)" },
-                to: { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, stagger: 0.05 }
-            });
-            // Reveal / Mask effects
-            createScrollAnimation('.duru-reveal-up', {
-                start: "top 85%", fromTo: true,
-                from: { clipPath: "inset(0 0 100% 0)", opacity: 0, y: 30 },
-                to: { clipPath: "inset(0 0 0% 0)", opacity: 1, y: 0, duration: 1, ease: "power3.out", immediateRender: false }
-            });
-            createScrollAnimation('.duru-clip-expand', {
-                scrub: 2, start: "top 80%", end: "top 60%", fromTo: true,
-                from: { clipPath: "polygon(30% 0, 70% 0, 70% 100%, 30% 100%)" },
-                to: { clipPath: "polygon(0% 0, 100% 0, 100% 100%, 0% 100%)", duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-mask-reveal-horizontal', {
-                start: "top 85%", fromTo: true,
-                from: { clipPath: "inset(0 100% 0 0)" },
-                to: { clipPath: "inset(0 0% 0 0)", duration: 1, ease: "power4.out" }
-            });
-            // Rotate / 3D effects
-            createScrollAnimation('.duru-rotate-scale-reveal', {
-                from: { opacity: 1, rotateZ: 45, scale: 0.5, y: "+=100" },
-                to: { opacity: 1, rotateZ: 0, scale: 1, y: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-rotate-on-scroll', {
-                scrub: 3, start: "top 70%", end: "top 50%", fromTo: true,
-                from: { rotateZ: 360 },
-                to: { rotateZ: 0, duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-flip-3d', {
-                start: "top 85%", fromTo: true,
-                from: { rotationX: 60, opacity: 0, transformPerspective: 1000 },
-                to: { rotationX: 0, opacity: 1, duration: 1, ease: "power3.out" }
-            });
-            // Image / Parallax effects
-            createScrollAnimation('.duru-background-parallax', {
-                scrub: 1, start: "top bottom", end: "bottom top", fromTo: true,
-                from: { backgroundPosition: "50% 0%" },
-                to: { backgroundPosition: "50% 100%", ease: "none" }
-            });
-            createScrollAnimation('.duru-image-parallax', {
-                scrub: 1.2, start: "top bottom", end: "bottom top", fromTo: true,
-                from: { scale: 1.2, y: -50 },
-                to: { scale: 1, y: 50, ease: "none" }
-            });
-            createScrollAnimation('.duru-horizontal-parallax', {
-                scrub: 1, start: "top bottom", end: "bottom top", fromTo: true,
-                from: { x: -200 },
-                to: { x: 200, ease: "none" }
-            });
-            createScrollAnimation('.duru-vertical-parallax', {
-                scrub: 1, start: "top bottom", end: "bottom top", fromTo: true,
-                from: { y: -200 },
-                to: { y: 200, ease: "none" }
-            });
-            // Color / Filter effects
-            createScrollAnimation('.duru-bg-dark-transition', {
-                start: "top 70%", end: "bottom 40%", fromTo: true,
-                from: { backgroundColor: "var(--clr-primary)" },
-                to: { backgroundColor: "#171717", duration: 1, immediateRender: false }
-            });
-            createScrollAnimation('.duru-hue-rotate', {
-                scrub: 1, start: "top 80%", end: "bottom 20%", fromTo: true,
-                from: { filter: "hue-rotate(0deg)" },
-                to: { filter: "hue-rotate(180deg)", ease: "none" }
-            });
+            createScrollAnimation('.duru-section-scale-bg-reveal', { start: "top 80%", end: "bottom 60%", from: { background: "#171717", scale: .8 }, to: { background: "inherit", scale: 1, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-section-shrink', { scrub: 1, start: "top 80%", end: "bottom 20%", fromTo: true, from: { scale: 1, opacity: 1 }, to: { scale: 0.9, opacity: 0.6, ease: "none" } });
+            createScrollAnimation('.duru-cta-slide-up', { start: "top 90%", end: "top 70%", from: { opacity: 1, y: "+=300" }, to: { opacity: 1, y: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-popup-scale-in', { start: "top 95%", end: "top 70%", fromTo: true, from: { scale: 0 }, to: { scale: 1, duration: .5, immediateRender: false } });
+            createScrollAnimation('.duru-slide-left', { from: { x: "-=100" }, to: { x: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-slide-right', { from: { x: "+=100" }, to: { x: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-slide-up', { start: "top 85%", from: { y: "+=100" }, to: { y: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-slide-down', { start: "top 85%", from: { y: "-=100" }, to: { y: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-move-from-right', { start: "top 85%", end: "bottom 60%", scrub: 1, fromTo: true, from: { opacity: 0, scale: 0.8, xPercent: 100, transformOrigin: "center center" }, to: { opacity: 1, scale: 1, xPercent: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-move-from-left', { start: "top 85%", end: "bottom 60%", scrub: 1, fromTo: true, from: { opacity: 0, scale: 0.8, xPercent: -100, transformOrigin: "center center" }, to: { opacity: 1, scale: 1, xPercent: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-image-slide-right', { scrub: 2, start: "top 80%", end: "top 70%", fromTo: true, from: { xPercent: -100 }, to: { xPercent: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-image-zoom', { start: "top 85%", fromTo: true, target: 'img', scrub: 0.3, from: { scale: 1 }, to: { scale: 1.5, ease: "none", immediateRender: false } });
+            createScrollAnimation('.duru-zoom-out', { start: "top 85%", fromTo: true, from: { scale: 1 }, to: { scale: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-scale-down-large', { start: "top 85%", end: "bottom 50%", fromTo: true, from: { scale: 2 }, to: { scale: 1, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-scale-down-medium', { start: "top 85%", end: "bottom 50%", fromTo: true, from: { scale: 1.5 }, to: { scale: 1, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-scale-in', { start: "top 95%", end: "top 70%", fromTo: true, from: { scale: .8 }, to: { scale: 1, duration: .5, immediateRender: false } });
+            createScrollAnimation('.duru-bounce-reveal', { start: "top 85%", from: { scale: 0.6, opacity: 0 }, to: { scale: 1, opacity: 1, duration: 1, ease: "elastic.out(1, 0.5)" } });
+            createScrollAnimation('.duru-text-color-light', { start: "top 70%", end: "bottom 40%", fromTo: true, from: { color: "#171717" }, to: { color: "#fff", duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-stagger-reveal', { start: "top 85%", fromTo: true, from: { opacity: 0, y: 40 }, to: { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, ease: "power3.out" } });
+            createScrollAnimation('.duru-text-blur-reveal', { start: "top 85%", from: { opacity: 0, y: 20, filter: "blur(6px)" }, to: { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, stagger: 0.05 } });
+            createScrollAnimation('.duru-reveal-up', { start: "top 85%", fromTo: true, from: { clipPath: "inset(0 0 100% 0)", opacity: 0, y: 30 }, to: { clipPath: "inset(0 0 0% 0)", opacity: 1, y: 0, duration: 1, ease: "power3.out", immediateRender: false } });
+            createScrollAnimation('.duru-clip-expand', { scrub: 2, start: "top 80%", end: "top 60%", fromTo: true, from: { clipPath: "polygon(30% 0, 70% 0, 70% 100%, 30% 100%)" }, to: { clipPath: "polygon(0% 0, 100% 0, 100% 100%, 0% 100%)", duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-mask-reveal-horizontal', { start: "top 85%", fromTo: true, from: { clipPath: "inset(0 100% 0 0)" }, to: { clipPath: "inset(0 0% 0 0)", duration: 1, ease: "power4.out" } });
+            createScrollAnimation('.duru-rotate-scale-reveal', { from: { opacity: 1, rotateZ: 45, scale: 0.5, y: "+=100" }, to: { opacity: 1, rotateZ: 0, scale: 1, y: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-rotate-on-scroll', { scrub: 3, start: "top 70%", end: "top 50%", fromTo: true, from: { rotateZ: 360 }, to: { rotateZ: 0, duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-flip-3d', { start: "top 85%", fromTo: true, from: { rotationX: 60, opacity: 0, transformPerspective: 1000 }, to: { rotationX: 0, opacity: 1, duration: 1, ease: "power3.out" } });
+            createScrollAnimation('.duru-background-parallax', { scrub: 1, start: "top bottom", end: "bottom top", fromTo: true, from: { backgroundPosition: "50% 0%" }, to: { backgroundPosition: "50% 100%", ease: "none" } });
+            createScrollAnimation('.duru-image-parallax', { scrub: 1.2, start: "top bottom", end: "bottom top", fromTo: true, from: { scale: 1.2, y: -50 }, to: { scale: 1, y: 50, ease: "none" } });
+            createScrollAnimation('.duru-horizontal-parallax', { scrub: 1, start: "top bottom", end: "bottom top", fromTo: true, from: { x: -200 }, to: { x: 200, ease: "none" } });
+            createScrollAnimation('.duru-vertical-parallax', { scrub: 1, start: "top bottom", end: "bottom top", fromTo: true, from: { y: -200 }, to: { y: 200, ease: "none" } });
+            createScrollAnimation('.duru-bg-dark-transition', { start: "top 70%", end: "bottom 40%", fromTo: true, from: { backgroundColor: "var(--clr-primary)" }, to: { backgroundColor: "#171717", duration: 1, immediateRender: false } });
+            createScrollAnimation('.duru-hue-rotate', { scrub: 1, start: "top 80%", end: "bottom 20%", fromTo: true, from: { filter: "hue-rotate(0deg)" }, to: { filter: "hue-rotate(180deg)", ease: "none" } });
         };
         initScrollAnimations();
 
@@ -649,25 +511,14 @@
            19. MARQUEE
            ========================================================================== */
         if ($.fn.marquee) {
-            $('.js-marquee-wrapper').marquee({
-                speed: 100,
-                gap: 30,
-                delayBeforeStart: 0,
-                direction: 'left',
-                duplicated: true,
-                pauseOnHover: true,
-                startVisible: true,
-            }).data('tourvex-marquee-initialized', true);
+            $('.js-marquee-wrapper').marquee({ speed: 100, gap: 30, delayBeforeStart: 0, direction: 'left', duplicated: true, pauseOnHover: true, startVisible: true }).data('tourvex-marquee-initialized', true);
         }
 
         /* ==========================================================================
            20. COUNTER
            ========================================================================== */
         if ($.fn.counterUp) {
-            $('.counter').counterUp({
-                delay: 10,
-                time: 3000
-            }).data('tourvex-counter-initialized', true);
+            $('.counter').counterUp({ delay: 10, time: 3000 }).data('tourvex-counter-initialized', true);
         }
 
         /* ==========================================================================
@@ -676,83 +527,16 @@
         if (typeof Swiper !== "undefined") {
             var parallaxSlider;
             var parallaxSliderOptions = {
-                speed: 1000,
-                autoplay: true,
-                parallax: true,
-                loop: true,
-                on: {
-                    init: function () {
-                        var swiper = this;
-                        for (var i = 0; i < swiper.slides.length; i++) {
-                            $(swiper.slides[i]).find('.bg-img').attr({
-                                'data-swiper-parallax': 0.75 * swiper.width
-                            });
-                        }
-                    },
-                    resize: function () {
-                        this.update();
-                    }
-                },
-                pagination: {
-                    el: '.slider-prlx .parallax-slider .swiper-pagination',
-                    type: 'fraction',
-                    clickable: true
-                },
-                navigation: {
-                    nextEl: '.slider-prlx .parallax-slider .next-ctrl',
-                    prevEl: '.slider-prlx .parallax-slider .prev-ctrl'
-                }
+                speed: 1000, autoplay: true, parallax: true, loop: true,
+                on: { init: function () { var swiper = this; for (var i = 0; i < swiper.slides.length; i++) { $(swiper.slides[i]).find('.bg-img').attr({ 'data-swiper-parallax': 0.75 * swiper.width }); } }, resize: function () { this.update(); } },
+                pagination: { el: '.slider-prlx .parallax-slider .swiper-pagination', type: 'fraction', clickable: true },
+                navigation: { nextEl: '.slider-prlx .parallax-slider .next-ctrl', prevEl: '.slider-prlx .parallax-slider .prev-ctrl' }
             };
             parallaxSlider = new Swiper('.slider-prlx .parallax-slider', parallaxSliderOptions);
-
-            var swiperTestim = new Swiper('.swiper-testim', {
-                spaceBetween: 0,
-                speed: 1000,
-                loop: true,
-                pagination: {
-                    el: '.swiper-testim .swiper-pagination',
-                },
-                navigation: {
-                    nextEl: '.swiper-testim .swiper-button-next',
-                    prevEl: '.swiper-testim .swiper-button-prev'
-                },
-            });
-
-            var swiperTestimImg = new Swiper('.testimonials .swiper-img', {
-                slidesPerView: 1,
-                spaceBetween: 0,
-                speed: 800,
-                loop: true,
-                effect: 'fade',
-                pagination: {
-                    el: '.testimonials .controls .swiper-pagination',
-                },
-                navigation: {
-                    nextEl: '.testimonials .controls .next-ctrl',
-                    prevEl: '.testimonials .controls .prev-ctrl'
-                },
-            });
-
-            var swiperTestimContent = new Swiper('.testimonials .swiper-content', {
-                slidesPerView: 1,
-                spaceBetween: 0,
-                speed: 800,
-                loop: true,
-                pagination: {
-                    el: '.testimonials .controls .swiper-pagination',
-                    type: 'fraction'
-                },
-                navigation: {
-                    nextEl: '.testimonials .controls .next-ctrl',
-                    prevEl: '.testimonials .controls .prev-ctrl'
-                },
-            });
-
-            var swiperWork = new Swiper(".work-crsol", {
-                slidesPerView: "auto",
-                spaceBetween: 60,
-                loop: true
-            });
+            var swiperTestim = new Swiper('.swiper-testim', { spaceBetween: 0, speed: 1000, loop: true, pagination: { el: '.swiper-testim .swiper-pagination' }, navigation: { nextEl: '.swiper-testim .swiper-button-next', prevEl: '.swiper-testim .swiper-button-prev' } });
+            var swiperTestimImg = new Swiper('.testimonials .swiper-img', { slidesPerView: 1, spaceBetween: 0, speed: 800, loop: true, effect: 'fade', pagination: { el: '.testimonials .controls .swiper-pagination' }, navigation: { nextEl: '.testimonials .controls .next-ctrl', prevEl: '.testimonials .controls .prev-ctrl' } });
+            var swiperTestimContent = new Swiper('.testimonials .swiper-content', { slidesPerView: 1, spaceBetween: 0, speed: 800, loop: true, pagination: { el: '.testimonials .controls .swiper-pagination', type: 'fraction' }, navigation: { nextEl: '.testimonials .controls .next-ctrl', prevEl: '.testimonials .controls .prev-ctrl' } });
+            var swiperWork = new Swiper(".work-crsol", { slidesPerView: "auto", spaceBetween: 60, loop: true });
         }
 
         /* ==========================================================================
@@ -783,16 +567,13 @@
 
     });
 
-    
     /* ==========================================================================
        23. WINDOW LOAD
        ========================================================================== */
     wind.on("load", function () {
         var body = $('body');
         body.addClass('loaded');
-        setTimeout(function () {
-            body.removeClass('loaded');
-        }, 1500);
+        setTimeout(function () { body.removeClass('loaded'); }, 1500);
     });
 
     /* ==========================================================================
@@ -801,483 +582,150 @@
     if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
         const elasticCards = gsap.utils.toArray(".image-stack-card");
         if (elasticCards.length) {
-            elasticCards.forEach((card, i) => {
-                card.style.zIndex = elasticCards.length - i;
-            });
-            const elasticTl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: ".image-stack",
-                    start: "top 80%",
-                    end: "+=350",
-                    scrub: 1
-                }
-            });
-            elasticCards.forEach((card, i) => {
-                const offset = i - (elasticCards.length - 1) / 2;
-                elasticTl.to(card, {
-                    x: offset * 180,
-                    rotation: offset * 8,
-                    ease: "none"
-                }, 0);
-            });
+            elasticCards.forEach((card, i) => { card.style.zIndex = elasticCards.length - i; });
+            const elasticTl = gsap.timeline({ scrollTrigger: { trigger: ".image-stack", start: "top 80%", end: "+=350", scrub: 1 } });
+            elasticCards.forEach((card, i) => { const offset = i - (elasticCards.length - 1) / 2; elasticTl.to(card, { x: offset * 180, rotation: offset * 8, ease: "none" }, 0); });
             let highestZ = elasticCards.length;
-            elasticCards.forEach(card => {
-                card.addEventListener("mouseenter", () => {
-                    highestZ++;
-                    gsap.to(card, {
-                        zIndex: highestZ,
-                        scale: 1.05,
-                        y: -10,
-                        duration: 0.3,
-                        ease: "power2.out"
-                    });
-                });
-                card.addEventListener("mouseleave", () => {
-                    gsap.to(card, {
-                        scale: 1,
-                        y: 0,
-                        duration: 0.3,
-                        ease: "power2.out"
-                    });
-                });
-            });
+            elasticCards.forEach(card => { card.addEventListener("mouseenter", () => { highestZ++; gsap.to(card, { zIndex: highestZ, scale: 1.05, y: -10, duration: 0.3, ease: "power2.out" }); }); card.addEventListener("mouseleave", () => { gsap.to(card, { scale: 1, y: 0, duration: 0.3, ease: "power2.out" }); }); });
         }
     }
 
-    
-    /* ==========================================================================
-       25. TEAM SLIDER
-       ========================================================================== */
-    var swiperTeam = new Swiper(".team-slider", {
-        slidesPerView: 4,
-        spaceBetween: 25,
-        loop: true,
-        speed: 900,
-        autoplay: false,
-        breakpoints: {
-            0: {
-                slidesPerView: 1
-            },
-            768: {
-                slidesPerView: 2
-            },
-            1200: {
-                slidesPerView: 4
-            }
-        }
-    });
+    var swiperTeam = new Swiper(".team-slider", { slidesPerView: 4, spaceBetween: 25, loop: true, speed: 900, autoplay: false, breakpoints: { 0: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1200: { slidesPerView: 4 } } });
+    var swiperGalleryScroll = new Swiper(".galleryscroll-slider", { slidesPerView: 4, spaceBetween: 25, loop: true, speed: 900, autoplay: false, breakpoints: { 0: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1200: { slidesPerView: 4 } } });
 
-    
-    /* ==========================================================================
-       26. GALLERY SCROLL SLIDER
-       ========================================================================== */
-    var swiperGalleryScroll = new Swiper(".galleryscroll-slider", {
-        slidesPerView: 4,
-        spaceBetween: 25,
-        loop: true,
-        speed: 900,
-        autoplay: false,
-        breakpoints: {
-            0: {
-                slidesPerView: 1
-            },
-            768: {
-                slidesPerView: 2
-            },
-            1200: {
-                slidesPerView: 4
-            }
-        }
-    });
-
-
-    /* ==========================================================================
-       27. TRAVEL HERO SLIDER
-       ========================================================================== */
     if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
         const heroSlider = document.querySelector('.slider-prlx .parallax-slider');
         if (heroSlider) {
             let currentSlide = 0;
             const slides = heroSlider.querySelectorAll('.swiper-slide');
-            const totalSlides = slides.length;
-
             function animateHeroSlide(index) {
                 const slide = slides[index];
                 if (!slide) return;
                 const bgImg = slide.querySelector('.bg-img');
-                if (bgImg) {
-                    gsap.fromTo(bgImg, 
-                        { scale: 1.1, yPercent: -5 },
-                        { scale: 1, yPercent: 0, duration: 1.5, ease: "power2.out" }
-                    );
-                }
+                if (bgImg) { gsap.fromTo(bgImg, { scale: 1.1, yPercent: -5 }, { scale: 1, yPercent: 0, duration: 1.5, ease: "power2.out" }); }
                 const content = slide.querySelector('.slider-content');
-                if (content) {
-                    gsap.fromTo(content,
-                        { opacity: 0, y: 30 },
-                        { opacity: 1, y: 0, duration: 1, delay: 0.3, ease: "power2.out" }
-                    );
-                }
+                if (content) { gsap.fromTo(content, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, delay: 0.3, ease: "power2.out" }); }
             }
-
-            if (heroSlider.swiper) {
-                heroSlider.swiper.on('slideChange', function () {
-                    animateHeroSlide(this.realIndex);
-                });
-                animateHeroSlide(0);
-            }
+            if (heroSlider.swiper) { heroSlider.swiper.on('slideChange', function () { animateHeroSlide(this.realIndex); }); animateHeroSlide(0); }
         }
     }
 
-
     // ============================================================
     // PATCH for custom.js (dev branch)
-    //
-    // This patch fixes THREE remaining issues that cause sliders and
-    // scroll animations to break after Next.js route changes:
-    //
-    // 1. The $(document).ready block creates 7 Swiper instances with
-    //    NO guards. When initTourvex runs on route change, it tries to
-    //    destroy and recreate them, but the document.ready instances
-    //    were created with `var swiperTeam = new Swiper(...)` — the
-    //    variables are in a closure and initTourvex can't see them.
-    //    The destroy in initTourvex uses `el.swiper` which IS correct,
-    //    BUT the document.ready Swiper init runs again if jQuery
-    //    re-fires ready (which it doesn't in Next.js, so this is fine).
-    //    The REAL issue is that document.ready creates ScrollTriggers
-    //    that initTourvex's orphan-kill misses.
-    //
-    // 2. ScrollSmoother.scrollTop is never reset on route change.
-    //    When you navigate from a scrolled-down About page back to
-    //    Home, the smoother is still at scroll position 3000px.
-    //    ScrollTrigger measures trigger positions relative to that
-    //    offset, so all triggers on the new Home page are calculated
-    //    as if you're already scrolled past them — they never fire.
-    //
-    // 3. The requestAnimationFrame in initTourvex's refresh runs ONE
-    //    frame later, but ScrollSmoother's internal refresh (which
-    //    recalculates wrapper height and transforms) is asynchronous
-    //    after smoother.refresh(). A single RAF isn't enough — we
-    //    need a double-RAF to wait for the smoother to finish.
-    //
-    // FIX: Replace the ENTIRE `window.initTourvex = function () { ... };`
-    // block with this version.
     // ============================================================
 
 window.initTourvex = function () {
 
-    // -------------------------------------------------------
-    // 0. TEARDOWN
-    // -------------------------------------------------------
-
-    // 0a. Kill ALL ScrollTriggers (not just orphaned ones).
-    //     The orphan-only check (`!document.documentElement.contains`)
-    //     misses triggers whose elements ARE still in the DOM but have
-    //     been repurposed by React reconciliation. Killing ALL triggers
-    //     and recreating them is safe because initScrollAnimations()
-    //     recreates them below.
+    // 0a. Kill ALL ScrollTriggers
     if (typeof ScrollTrigger !== "undefined") {
-        ScrollTrigger.getAll().forEach(function (trigger) {
-            trigger.kill(true);
-        });
+        ScrollTrigger.getAll().forEach(function (trigger) { trigger.kill(true); });
     }
 
-    // 0b. Destroy orphaned Swiper instances.
-    var swiperSelectors = [
-        '.slider-prlx .parallax-slider',
-        '.swiper-testim',
-        '.testimonials .swiper-img',
-        '.testimonials .swiper-content',
-        '.team-slider',
-        '.galleryscroll-slider',
-        '.work-crsol'
-    ];
+    // 0b. Destroy orphaned Swiper instances
+    var swiperSelectors = ['.slider-prlx .parallax-slider', '.swiper-testim', '.testimonials .swiper-img', '.testimonials .swiper-content', '.team-slider', '.galleryscroll-slider', '.work-crsol'];
     swiperSelectors.forEach(function (sel) {
         document.querySelectorAll(sel).forEach(function (el) {
-            if (el.swiper && typeof el.swiper.destroy === 'function') {
-                try { el.swiper.destroy(true, true); } catch (e) {}
-                el.swiper = null;
-            }
+            if (el.swiper && typeof el.swiper.destroy === 'function') { try { el.swiper.destroy(true, true); } catch (e) {} el.swiper = null; }
         });
     });
 
-    // 0c. Clear ALL data-tourvex-* init guards.
-    ['tourvexScrollInitialized', 'tourvexWowInitialized', 'tourvexCounterInitialized',
-     'tourvexMarqueeInitialized', 'tourvexPopupInitialized'].forEach(function (guard) {
+    // 0c. Clear ALL data-tourvex-* init guards
+    ['tourvexScrollInitialized', 'tourvexWowInitialized', 'tourvexCounterInitialized', 'tourvexMarqueeInitialized', 'tourvexPopupInitialized'].forEach(function (guard) {
         var attr = 'data-' + guard.replace(/([A-Z])/g, '-$1').toLowerCase();
-        document.querySelectorAll('[' + attr + ']').forEach(function (el) {
-            delete el.dataset[guard];
-        });
+        document.querySelectorAll('[' + attr + ']').forEach(function (el) { delete el.dataset[guard]; });
     });
 
-    // 0d. Reset scroll position to top.
-    //     Without this, navigating from a scrolled page to Home
-    //     leaves ScrollSmoother at the old scroll offset, causing
-    //     all triggers on the new page to be miscalculated.
+    // 0d. Reset scroll position to top — INSTANT, not smooth.
+    //     scrollTop(0) triggers a ~2s smooth scroll animation because
+    //     smooth:2 is set. All subsequent position measurements would
+    //     happen WHILE the smoother is still animating, producing wrong
+    //     results. The second arg `false` makes it jump instantly.
     if (typeof ScrollSmoother !== "undefined" && ScrollSmoother.get()) {
-        ScrollSmoother.get().scrollTop(0);
+        ScrollSmoother.get().scrollTop(0, false);
     } else {
         window.scrollTo(0, 0);
     }
 
-    // -------------------------------------------------------
     // 1. GSAP / HERO cleanup
-    // -------------------------------------------------------
     if (typeof gsap !== "undefined") {
         gsap.killTweensOf('header.full-height, header.full-height *');
-        gsap.set(
-            'header.full-height .container, header.full-height .cont, header.full-height h6, header.full-height h2, header.full-height p, header.full-height .butn-arrow2',
-            { clearProps: 'opacity,visibility,transform,translate,scale,rotate' }
-        );
+        gsap.set('header.full-height .container, header.full-height .cont, header.full-height h6, header.full-height h2, header.full-height p, header.full-height .butn-arrow2', { clearProps: 'opacity,visibility,transform,translate,scale,rotate' });
     }
 
-    // -------------------------------------------------------
-    // 2. SCROLL ANIMATIONS (recreate for new route)
-    // -------------------------------------------------------
+    // 2. SCROLL ANIMATIONS
     initScrollAnimations();
 
-    // -------------------------------------------------------
     // 3. DYNAMIC BACKGROUND IMAGES
-    // -------------------------------------------------------
-    $(".bg-img, section, [data-background]").each(function () {
-        if ($(this).attr("data-background")) {
-            $(this).css("background-image", "url(" + $(this).data("background") + ")");
-        }
-    });
+    $(".bg-img, section, [data-background]").each(function () { if ($(this).attr("data-background")) { $(this).css("background-image", "url(" + $(this).data("background") + ")"); } });
 
-    // -------------------------------------------------------
     // 4. WOW — backed by ScrollTrigger
-    // -------------------------------------------------------
     if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
         gsap.utils.toArray('.wow').forEach(function (element) {
             if (element.dataset.tourvexWowInitialized) return;
             element.dataset.tourvexWowInitialized = 'true';
-
             var from = { autoAlpha: 0, y: 40 };
-            if (element.classList.contains('fadeInRight')) {
-                from = { autoAlpha: 0, x: 60 };
-            } else if (element.classList.contains('fadeInLeft')) {
-                from = { autoAlpha: 0, x: -60 };
-            } else if (element.classList.contains('fadeInDown')) {
-                from = { autoAlpha: 0, y: -40 };
-            }
-
-            gsap.fromTo(element, from, {
-                autoAlpha: 1,
-                x: 0,
-                y: 0,
-                duration: 0.8,
-                delay: parseFloat(element.getAttribute('data-wow-delay')) || 0,
-                ease: 'power2.out',
-                clearProps: 'opacity,visibility,transform',
-                scrollTrigger: {
-                    trigger: element,
-                    start: 'top 92%',
-                    once: true
-                }
-            });
+            if (element.classList.contains('fadeInRight')) { from = { autoAlpha: 0, x: 60 }; }
+            else if (element.classList.contains('fadeInLeft')) { from = { autoAlpha: 0, x: -60 }; }
+            else if (element.classList.contains('fadeInDown')) { from = { autoAlpha: 0, y: -40 }; }
+            gsap.fromTo(element, from, { autoAlpha: 1, x: 0, y: 0, duration: 0.8, delay: parseFloat(element.getAttribute('data-wow-delay')) || 0, ease: 'power2.out', clearProps: 'opacity,visibility,transform', scrollTrigger: { trigger: element, start: 'top 92%', once: true } });
         });
-    } else if (typeof WOW !== "undefined") {
-        new WOW({ animateClass: 'animated', offset: 100 }).init();
-    }
+    } else if (typeof WOW !== "undefined") { new WOW({ animateClass: 'animated', offset: 100 }).init(); }
 
-    // -------------------------------------------------------
     // 5. ROLLING TEXT
-    // -------------------------------------------------------
-    $('.rolling-text').each(function () {
-        const $el = $(this);
-        if ($el.children('.block').length) return;
-        const innerText = $el.text();
-        $el.empty();
-        const $textContainer = $('<div>').addClass('block');
-        for (const letter of innerText) {
-            const $span = $('<span>').addClass('letter').text(letter.trim() === '' ? '\xa0' : letter);
-            $textContainer.append($span);
-        }
-        $el.append($textContainer).append($textContainer.clone());
-    });
+    $('.rolling-text').each(function () { const $el = $(this); if ($el.children('.block').length) return; const innerText = $el.text(); $el.empty(); const $textContainer = $('<div>').addClass('block'); for (const letter of innerText) { const $span = $('<span>').addClass('letter').text(letter.trim() === '' ? '\xa0' : letter); $textContainer.append($span); } $el.append($textContainer).append($textContainer.clone()); });
 
-    // -------------------------------------------------------
     // 6. COUNTER
-    // -------------------------------------------------------
-    if ($.fn.counterUp) {
-        $('.counter').each(function () {
-            var $counter = $(this);
-            if (!$counter.data('tourvex-counter-initialized')) {
-                $counter.counterUp({ delay: 10, time: 3000 });
-                $counter.data('tourvex-counter-initialized', true);
-            }
-        });
-    }
+    if ($.fn.counterUp) { $('.counter').each(function () { var $counter = $(this); if (!$counter.data('tourvex-counter-initialized')) { $counter.counterUp({ delay: 10, time: 3000 }); $counter.data('tourvex-counter-initialized', true); } }); }
 
-    // -------------------------------------------------------
     // 7. MARQUEE
-    // -------------------------------------------------------
-    if ($.fn.marquee) {
-        $('.js-marquee-wrapper').each(function () {
-            var $marquee = $(this);
-            if ($marquee.data('tourvex-marquee-initialized')) return;
-            $marquee.marquee({
-                speed: 100, gap: 30, delayBeforeStart: 0,
-                direction: 'left', duplicated: true,
-                pauseOnHover: true, startVisible: true,
-            });
-            $marquee.data('tourvex-marquee-initialized', true);
-        });
-    }
+    if ($.fn.marquee) { $('.js-marquee-wrapper').each(function () { var $marquee = $(this); if ($marquee.data('tourvex-marquee-initialized')) return; $marquee.marquee({ speed: 100, gap: 30, delayBeforeStart: 0, direction: 'left', duplicated: true, pauseOnHover: true, startVisible: true }); $marquee.data('tourvex-marquee-initialized', true); }); }
 
-    // -------------------------------------------------------
     // 8. MAGNIFIC POPUP
-    // -------------------------------------------------------
     if ($.fn.magnificPopup) {
-        $('.gallery').each(function () {
-            var $gallery = $(this);
-            if ($gallery.data('tourvex-popup-initialized')) return;
-            $gallery.magnificPopup({ delegate: '.popimg', type: 'image', gallery: { enabled: true } });
-            $gallery.data('tourvex-popup-initialized', true);
-        });
-        $('.img-zoom, .image-popup-vertical-fit').each(function () {
-            var $popup = $(this);
-            if ($popup.data('tourvex-popup-initialized')) return;
-            if ($popup.hasClass('img-zoom')) {
-                $popup.magnificPopup({
-                    type: 'image', closeOnContentClick: true, mainClass: 'mfp-fade',
-                    gallery: { enabled: true, navigateByImgClick: true, preload: [0, 1] }
-                });
-            } else {
-                $popup.magnificPopup({
-                    type: 'image', closeOnContentClick: true, mainClass: 'mfp-img-mobile',
-                    image: { verticalFit: true }
-                });
-            }
-            $popup.data('tourvex-popup-initialized', true);
-        });
+        $('.gallery').each(function () { var $gallery = $(this); if ($gallery.data('tourvex-popup-initialized')) return; $gallery.magnificPopup({ delegate: '.popimg', type: 'image', gallery: { enabled: true } }); $gallery.data('tourvex-popup-initialized', true); });
+        $('.img-zoom, .image-popup-vertical-fit').each(function () { var $popup = $(this); if ($popup.data('tourvex-popup-initialized')) return; if ($popup.hasClass('img-zoom')) { $popup.magnificPopup({ type: 'image', closeOnContentClick: true, mainClass: 'mfp-fade', gallery: { enabled: true, navigateByImgClick: true, preload: [0, 1] } }); } else { $popup.magnificPopup({ type: 'image', closeOnContentClick: true, mainClass: 'mfp-img-mobile', image: { verticalFit: true } }); } $popup.data('tourvex-popup-initialized', true); });
     }
 
-    // -------------------------------------------------------
     // 9. ISOTOPE
-    // -------------------------------------------------------
     if ($.fn.isotope) {
-        $('.gallery-wrap').each(function () {
-            var $currentGrid = $(this);
-            if (!$currentGrid.data('isotope')) {
-                $currentGrid.isotope({
-                    itemSelector: '.gallery-item', percentPosition: true,
-                    layoutMode: 'masonry', transitionDuration: '0.6s'
-                });
-            }
-            if ($.fn.imagesLoaded) {
-                $currentGrid.imagesLoaded(function () { $currentGrid.isotope('layout'); });
-            }
-        });
-        $('.tours-isotope').each(function () {
-            var $tourGrid = $(this);
-            if (!$tourGrid.data('isotope')) {
-                $tourGrid.isotope({ itemSelector: '.items' });
-            }
-        });
+        $('.gallery-wrap').each(function () { var $currentGrid = $(this); if (!$currentGrid.data('isotope')) { $currentGrid.isotope({ itemSelector: '.gallery-item', percentPosition: true, layoutMode: 'masonry', transitionDuration: '0.6s' }); } if ($.fn.imagesLoaded) { $currentGrid.imagesLoaded(function () { $currentGrid.isotope('layout'); }); } });
+        $('.tours-isotope').each(function () { var $tourGrid = $(this); if (!$tourGrid.data('isotope')) { $tourGrid.isotope({ itemSelector: '.items' }); } });
     }
 
-    // -------------------------------------------------------
     // 10. TESTIMONIALS 2
-    // -------------------------------------------------------
     if ($('.testimonials2').length) {
         $('.testimonials2').each(function (index, value) {
-            var valueObj = $(value),
-                totalWidth = valueObj.outerWidth(),
-                slidingLength = valueObj.find('.item').length,
+            var valueObj = $(value), totalWidth = valueObj.outerWidth(), slidingLength = valueObj.find('.item').length,
                 devideRightPadding = (parseInt(valueObj.css('padding-right')) || 0) / slidingLength,
                 devideLeftPadding = (parseInt(valueObj.css('padding-left')) || 0) / slidingLength,
                 usageWidth = (slidingLength * 12.5) + 12.5 + devideRightPadding + devideLeftPadding,
-                useWidth = totalWidth - usageWidth,
-                devideLength = slidingLength + 1,
-                devideWidth = (useWidth / devideLength),
-                activeWidth = devideWidth * 2;
+                useWidth = totalWidth - usageWidth, devideLength = slidingLength + 1,
+                devideWidth = (useWidth / devideLength), activeWidth = devideWidth * 2;
             valueObj.find('.item, .img, .item .cont').css('width', devideWidth);
             valueObj.find('.item .cont').css('left', devideWidth);
             valueObj.find('.item.active').css('width', activeWidth);
         });
     }
 
-    // -------------------------------------------------------
-    // 11. SWIPER — fresh instances
-    // -------------------------------------------------------
+    // 11. SWIPER
     if (typeof Swiper !== "undefined") {
-
-        if ($('.slider-prlx .parallax-slider').length && !$('.slider-prlx .parallax-slider')[0].swiper) {
-            new Swiper('.slider-prlx .parallax-slider', {
-                speed: 1000, autoplay: true, parallax: true, loop: true,
-                pagination: { el: '.slider-prlx .parallax-slider .swiper-pagination', type: 'fraction', clickable: true },
-                navigation: { nextEl: '.slider-prlx .parallax-slider .next-ctrl', prevEl: '.slider-prlx .parallax-slider .prev-ctrl' }
-            });
-        }
-
-        if ($('.swiper-testim').length && !$('.swiper-testim')[0].swiper) {
-            new Swiper('.swiper-testim', {
-                spaceBetween: 0, speed: 1000, loop: true,
-                pagination: { el: '.swiper-testim .swiper-pagination' },
-                navigation: { nextEl: '.swiper-testim .swiper-button-next', prevEl: '.swiper-testim .swiper-button-prev' }
-            });
-        }
-
-        if ($('.testimonials .swiper-img').length && !$('.testimonials .swiper-img')[0].swiper) {
-            new Swiper('.testimonials .swiper-img', {
-                slidesPerView: 1, spaceBetween: 0, speed: 800, loop: true, effect: 'fade',
-                pagination: { el: '.testimonials .controls .swiper-pagination' },
-                navigation: { nextEl: '.testimonials .controls .next-ctrl', prevEl: '.testimonials .controls .prev-ctrl' }
-            });
-        }
-
-        if ($('.testimonials .swiper-content').length && !$('.testimonials .swiper-content')[0].swiper) {
-            new Swiper('.testimonials .swiper-content', {
-                slidesPerView: 1, spaceBetween: 0, speed: 800, loop: true,
-                pagination: { el: '.testimonials .controls .swiper-pagination', type: 'fraction' },
-                navigation: { nextEl: '.testimonials .controls .next-ctrl', prevEl: '.testimonials .controls .prev-ctrl' }
-            });
-        }
-
-        if ($('.work-crsol').length && !$('.work-crsol')[0].swiper) {
-            new Swiper(".work-crsol", { slidesPerView: "auto", spaceBetween: 60, loop: true });
-        }
-
-        if ($('.team-slider').length && !$('.team-slider')[0].swiper) {
-            new Swiper(".team-slider", {
-                slidesPerView: 4, spaceBetween: 25, loop: true, speed: 900, autoplay: false,
-                breakpoints: { 0: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1200: { slidesPerView: 4 } }
-            });
-        }
-
-        if ($('.galleryscroll-slider').length && !$('.galleryscroll-slider')[0].swiper) {
-            new Swiper(".galleryscroll-slider", {
-                slidesPerView: 4, spaceBetween: 25, loop: true, speed: 900, autoplay: false,
-                breakpoints: { 0: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1200: { slidesPerView: 4 } }
-            });
-        }
+        if ($('.slider-prlx .parallax-slider').length && !$('.slider-prlx .parallax-slider')[0].swiper) { new Swiper('.slider-prlx .parallax-slider', { speed: 1000, autoplay: true, parallax: true, loop: true, pagination: { el: '.slider-prlx .parallax-slider .swiper-pagination', type: 'fraction', clickable: true }, navigation: { nextEl: '.slider-prlx .parallax-slider .next-ctrl', prevEl: '.slider-prlx .parallax-slider .prev-ctrl' } }); }
+        if ($('.swiper-testim').length && !$('.swiper-testim')[0].swiper) { new Swiper('.swiper-testim', { spaceBetween: 0, speed: 1000, loop: true, pagination: { el: '.swiper-testim .swiper-pagination' }, navigation: { nextEl: '.swiper-testim .swiper-button-next', prevEl: '.swiper-testim .swiper-button-prev' } }); }
+        if ($('.testimonials .swiper-img').length && !$('.testimonials .swiper-img')[0].swiper) { new Swiper('.testimonials .swiper-img', { slidesPerView: 1, spaceBetween: 0, speed: 800, loop: true, effect: 'fade', pagination: { el: '.testimonials .controls .swiper-pagination' }, navigation: { nextEl: '.testimonials .controls .next-ctrl', prevEl: '.testimonials .controls .prev-ctrl' } }); }
+        if ($('.testimonials .swiper-content').length && !$('.testimonials .swiper-content')[0].swiper) { new Swiper('.testimonials .swiper-content', { slidesPerView: 1, spaceBetween: 0, speed: 800, loop: true, pagination: { el: '.testimonials .controls .swiper-pagination', type: 'fraction' }, navigation: { nextEl: '.testimonials .controls .next-ctrl', prevEl: '.testimonials .controls .prev-ctrl' } }); }
+        if ($('.work-crsol').length && !$('.work-crsol')[0].swiper) { new Swiper(".work-crsol", { slidesPerView: "auto", spaceBetween: 60, loop: true }); }
+        if ($('.team-slider').length && !$('.team-slider')[0].swiper) { new Swiper(".team-slider", { slidesPerView: 4, spaceBetween: 25, loop: true, speed: 900, autoplay: false, breakpoints: { 0: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1200: { slidesPerView: 4 } } }); }
+        if ($('.galleryscroll-slider').length && !$('.galleryscroll-slider')[0].swiper) { new Swiper(".galleryscroll-slider", { slidesPerView: 4, spaceBetween: 25, loop: true, speed: 900, autoplay: false, breakpoints: { 0: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1200: { slidesPerView: 4 } } }); }
     }
 
-    // -------------------------------------------------------
     // 12. REFRESH — double-RAF for ScrollSmoother timing
-    //
-    // ScrollSmoother.refresh() recalculates the wrapper height
-    // and transform offsets ASYNCHRONOUSLY. A single RAF waits
-    // one frame, but the smoother's internal layout pass may
-    // not have completed yet. The double-RAF pattern (RAF within
-    // RAF) ensures we measure AFTER the smoother has fully
-    // recalculated:
-    //   Frame 1: ScrollSmoother.refresh() starts layout
-    //   Frame 2: Layout is complete, now ScrollTrigger.refresh()
-    //            can measure correct positions.
-    // -------------------------------------------------------
     if (typeof ScrollSmoother !== "undefined" && ScrollSmoother.get()) {
         var smoother = ScrollSmoother.get();
         smoother.effects('[data-speed], [data-lag]', {});
         if (typeof smoother.refresh === 'function') smoother.refresh();
     }
-
     if (typeof ScrollTrigger !== "undefined") {
-        // First RAF: wait for smoother transforms to apply
         requestAnimationFrame(function () {
-            // Second RAF: wait for browser to paint those transforms
             requestAnimationFrame(function () {
                 ScrollTrigger.clearScrollMemory('manual');
                 ScrollTrigger.refresh(true);
