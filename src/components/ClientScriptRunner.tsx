@@ -68,7 +68,22 @@ export default function ClientScriptRunner() {
       // new route's DOM to the document before we scan for elements.
       const timer = setTimeout(() => {
         (window as any).initTourvex();
-      }, 50);
+
+        // Secondary refresh after ScrollSmoother has fully settled.
+        // initTourvex uses double-RAF (~32ms) but ScrollSmoother's
+        // internal height recalculation can take longer on complex pages.
+        // This catches any triggers that were created with stale positions.
+        const secondaryRefresh = setTimeout(() => {
+          if (typeof window !== 'undefined') {
+            const ScrollTrigger = (window as any).ScrollTrigger;
+            if (ScrollTrigger) {
+              ScrollTrigger.refresh();
+            }
+          }
+        }, 300);
+
+        return () => clearTimeout(secondaryRefresh);
+      }, 100);
 
       return () => clearTimeout(timer);
     }
@@ -76,5 +91,3 @@ export default function ClientScriptRunner() {
 
   return null;
 }
-
-
