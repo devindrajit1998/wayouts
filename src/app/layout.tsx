@@ -3,9 +3,10 @@ import Script from 'next/script';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ClientScriptRunner from '@/components/ClientScriptRunner';
+import './admin/admin.css';
 
 export const metadata: Metadata = {
-  title: 'WAYOUTS — Travel Agency Template',
+  title: "WAYOUTS — There's always a wayout",
   description: 'Turn your dream destinations into reality with our expert guidance.',
   icons: {
     icon: [

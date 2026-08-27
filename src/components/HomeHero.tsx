@@ -1,22 +1,50 @@
 'use client';
 
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
 
 export default function HomeHero() {
+  const heroRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+
+    // The legacy theme can leave inline GSAP state after a client-side
+    // navigation. Restore the complete Home copy subtree before paint.
+    const elements = hero.querySelectorAll<HTMLElement>(
+      '.home-hero-copy, .home-hero-copy *, .home-hero-button, .home-hero-button *'
+    );
+    elements.forEach((element) => {
+      element.style.removeProperty('opacity');
+      element.style.removeProperty('visibility');
+      element.style.removeProperty('transform');
+      element.style.removeProperty('translate');
+      element.style.removeProperty('scale');
+      element.style.removeProperty('rotate');
+      element.style.removeProperty('clip-path');
+      element.style.removeProperty('display');
+    });
+
+    const container = hero.querySelector<HTMLElement>('.container');
+    container?.style.removeProperty('opacity');
+    container?.style.removeProperty('visibility');
+    container?.style.removeProperty('transform');
+  }, []);
+
   return (
-    <header className="full-height valign">
+    <header ref={heroRef} className="full-height valign">
       <div className="background bg-img" data-background="/assets/img/hero/pattern-bg.png"></div>
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 10 }}>
         <div className="row">
           <div className="col-lg-5 valign">
-            <div className="cont">
-              <h6>Wayouts agency</h6>
-              <h2 className="text-white">
+            <div className="cont" style={{ position: 'relative', zIndex: 10, opacity: 1, visibility: 'visible' }}>
+              <h6 style={{ color: 'var(--clr-primary)', opacity: 1, visibility: 'visible' }}>Wayouts agency</h6>
+              <h2 className="text-white" style={{ color: '#ffffff', opacity: 1, visibility: 'visible' }}>
                 <span>Discover the world <i>with our guide.</i></span>
               </h2>
-              <p>Turn your dream destinations into reality with our expert guidance. From hidden gems to iconic horizons, we create journeys tailored just for you.</p>
-              <Link href="/tours" className="butn-arrow2">
+              <p style={{ color: 'rgba(255, 255, 255, 0.75)', opacity: 1, visibility: 'visible' }}>Turn your dream destinations into reality with our expert guidance. From hidden gems to iconic horizons, we create journeys tailored just for you.</p>
+              <Link href="/tours" className="butn-arrow2" style={{ opacity: 1, visibility: 'visible', display: 'inline-flex' }}>
                 <span className="btn-text">View tours</span>
                 <span className="arrow-wrap">
                   <span className="arrow-inner">

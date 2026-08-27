@@ -3,75 +3,67 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
+/**
+ * Re-runs the legacy theme initializer after Next replaces route content.
+ * The theme scripts are loaded with afterInteractive, so the first effect can
+ * otherwise run before custom.js has registered initTourvex.
+ */
 export default function ClientScriptRunner() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Dynamic background image setting
-    const bgElements = document.querySelectorAll('[data-background]');
-    bgElements.forEach((el) => {
-      const bg = el.getAttribute('data-background');
-      if (bg) {
-        (el as HTMLElement).style.backgroundImage = `url(${bg})`;
-      }
-    });
+    if (pathname.startsWith('/admin') || typeof window === 'undefined') return;
 
-    // Close mobile navbar on route change
-    const navbarCollapse = document.getElementById('navbar');
-    if (navbarCollapse && navbarCollapse.classList.contains('show')) {
-      navbarCollapse.classList.remove('show');
-    }
+    let cancelled = false;
+    let attempts = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
-    // Initialize/refresh WOW if available
-    if (typeof window !== 'undefined' && (window as any).WOW) {
-      new (window as any).WOW().init();
-    }
+    const initialize = () => {
+      if (cancelled) return;
 
-    // Ensure header container and text elements are visible after route transition
-    const headerContainer = document.querySelectorAll('header, header .container, header .cont, .full-height .cont');
-    headerContainer.forEach((el) => {
-      (el as HTMLElement).style.opacity = '1';
-      (el as HTMLElement).style.transform = 'none';
-      (el as HTMLElement).style.visibility = 'visible';
-    });
-
-    // Refresh ScrollSmoother and ScrollTrigger if available
-    if (typeof window !== 'undefined') {
-      const gsap = (window as any).gsap;
-      const ScrollTrigger = (window as any).ScrollTrigger;
-      const ScrollSmoother = (window as any).ScrollSmoother;
-
-      if (gsap) {
-        gsap.set('header .container, header .cont, .full-height .cont', {
-          opacity: 1,
-          y: 0,
-          clearProps: 'opacity,transform'
-        });
+      const win = window as any;
+      if (typeof win.initTourvex !== 'function') {
+        // Wait for the afterInteractive scripts instead of silently missing
+        // initialization on a fast client-side navigation.
+        if (attempts++ < 40) {
+          timer = setTimeout(initialize, 50);
+        }
+        return;
       }
 
-      if (gsap && ScrollTrigger) {
-        ScrollTrigger.refresh();
-      }
+      // Let React finish committing the route before querying its elements.
+      requestAnimationFrame(() => {
+        if (cancelled) return;
 
-      if (gsap && ScrollSmoother && ScrollTrigger) {
-        if (!ScrollSmoother.get()) {
-          ScrollSmoother.create({
-            smooth: 2,
-            effects: true,
-            normalizeScroll: false,
-          });
-        } else {
+        const navbarCollapse = document.getElementById('navbar');
+        navbarCollapse?.classList.remove('show');
+
+        win.initTourvex();
+
+        const ScrollTrigger = win.ScrollTrigger;
+        const ScrollSmoother = win.ScrollSmoother;
+
+        if (ScrollSmoother?.get()) {
           ScrollSmoother.get().effects('[data-speed], [data-lag]', {});
         }
-      }
-    }
 
-    // Run Tourvex global initializer (WOW, Swiper, Testimonials accordion)
-    if (typeof window !== 'undefined' && (window as any).initTourvex) {
-      setTimeout(() => {
-        (window as any).initTourvex();
-      }, 50);
-    }
+        // Images and fonts can change layout after the route is committed.
+        // Refresh once now and once after those dimensions settle.
+        ScrollTrigger?.refresh(true);
+        ScrollTrigger?.update();
+        timer = setTimeout(() => {
+          ScrollTrigger?.refresh(true);
+          ScrollTrigger?.update();
+        }, 100);
+      });
+    };
+
+    initialize();
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
   }, [pathname]);
 
   return null;

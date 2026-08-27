@@ -42,6 +42,7 @@
     "use strict";
 
     var wind = $(window);
+    var initScrollAnimations = function () { };
 
     /* ==========================================================================
        1. GSAP CONFIG
@@ -78,7 +79,7 @@
             const link = document.querySelectorAll('.hover-this');
             const cursor = document.querySelector('.cursor');
             if (!cursor) return;
-            
+
             const animateit = function (e) {
                 const hoverAnim = this.querySelector('.hover-anim');
                 if (!hoverAnim) return;
@@ -87,23 +88,23 @@
                 const move = 100;
                 const xMove = x / width * (move * 2) - move;
                 const yMove = y / height * (move * 2) - move;
-                
+
                 hoverAnim.style.transform = `translate(${xMove}px, ${yMove}px)`;
                 if (e.type === 'mouseleave') {
                     hoverAnim.style.transform = '';
                 }
             };
-            
+
             const editCursor = e => {
                 const { clientX: x, clientY: y } = e;
                 cursor.style.left = x + 'px';
                 cursor.style.top = y + 'px';
             };
-            
+
             link.forEach(b => b.addEventListener('mousemove', animateit));
             link.forEach(b => b.addEventListener('mouseleave', animateit));
             window.addEventListener('mousemove', editCursor);
-            
+
             $("a, .cursor-pointer").hover(function () {
                 $(".cursor").addClass("cursor-active");
             }, function () {
@@ -152,14 +153,12 @@
            ========================================================================== */
         wind.on("scroll", function () {
             var bodyScroll = wind.scrollTop(),
-                navbar = $(".navbar"),
-                logo = $(".navbar .logo > img");
+                navbar = $(".navbar");
             if (bodyScroll > 100) {
                 navbar.addClass("nav-scroll");
             } else {
                 navbar.removeClass("nav-scroll");
             }
-            logo.attr('src', 'assets/img/logo.png');
         });
 
         /* ==========================================================================
@@ -186,8 +185,8 @@
         $(document).on('mouseenter', '.rolling-text', function () {
             $(this).removeClass('play');
         });
-        
-        
+
+
 
         /* ==========================================================================
            9. DYNAMIC BACKGROUND IMAGE
@@ -219,7 +218,7 @@
                 gallery: {
                     enabled: true
                 }
-            });
+            }).data('tourvex-popup-initialized', true);
             $(".img-zoom").magnificPopup({
                 type: "image",
                 closeOnContentClick: true,
@@ -229,7 +228,7 @@
                     navigateByImgClick: true,
                     preload: [0, 1]
                 }
-            });
+            }).data('tourvex-popup-initialized', true);
             $('.magnific-youtube, .magnific-vimeo, .magnific-custom').magnificPopup({
                 disableOn: 700,
                 type: 'iframe',
@@ -245,7 +244,7 @@
                 image: {
                     verticalFit: true
                 }
-            });
+            }).data('tourvex-popup-initialized', true);
         }
 
         /* ==========================================================================
@@ -279,7 +278,7 @@
                 }, 50);
             });
         }
-        
+
         if ($.fn.isotope) {
             $('.tours-isotope').isotope({
                 itemSelector: '.items'
@@ -405,11 +404,11 @@
            ========================================================================== */
         if (typeof gsap !== "undefined") {
             const svg = document.getElementById("svg");
-            if (svg) {
+            if (svg && document.querySelector('header.full-height')) {
                 const tl = gsap.timeline();
                 const curve = "M0 502S175 272 500 272s500 230 500 230V0H0Z";
                 const flat = "M0 2S175 1 500 1s500 1 500 1V0H0Z";
-                tl.to(".loader-wrap-heading .load-text, .loader-wrap-heading .cont", {
+                tl.to(".loader-wrap-heading .load-text", {
                     delay: 1.5,
                     y: -100,
                     opacity: 0,
@@ -434,34 +433,25 @@
                     zIndex: -1,
                     display: "none",
                 });
-                tl.fromTo("header", {
-                    y: 200,
-                }, {
-                    y: 0,
-                    duration: 1,
-                    ease: "power2.out"
-                }, "-=1.5");
-                tl.fromTo("header .container", {
-                    y: 40,
-                    opacity: 0,
-                }, {
-                    y: 0,
-                    opacity: 1,
-                    duration: 1,
-                    delay: 0.3,
-                    ease: "power2.out"
-                }, "-=1.5");
+                // Do not animate generic headers here. The layout persists while
+                // App Router replaces route content, so a global selector can
+                // leave newly mounted Home content with stale visual state.
             }
         }
-        
-        
+
+
 
         /* ==========================================================================
            18. GSAP SCROLLTRIGGER ANIMATIONS
            ========================================================================== */
-        if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
+        initScrollAnimations = function () {
+            if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") return;
+
             function createScrollAnimation(selector, options) {
                 gsap.utils.toArray(selector).forEach((el) => {
+                    if (el.dataset.tourvexScrollInitialized) return;
+                    el.dataset.tourvexScrollInitialized = 'true';
+
                     let tl = gsap.timeline({
                         scrollTrigger: {
                             trigger: el,
@@ -484,7 +474,7 @@
                     }
                 });
             }
-            
+
             // Section effects
             createScrollAnimation('.duru-section-scale-bg-reveal', {
                 start: "top 80%",
@@ -652,7 +642,8 @@
                 from: { filter: "hue-rotate(0deg)" },
                 to: { filter: "hue-rotate(180deg)", ease: "none" }
             });
-        }
+        };
+        initScrollAnimations();
 
         /* ==========================================================================
            19. MARQUEE
@@ -666,7 +657,7 @@
                 duplicated: true,
                 pauseOnHover: true,
                 startVisible: true,
-            });
+            }).data('tourvex-marquee-initialized', true);
         }
 
         /* ==========================================================================
@@ -676,7 +667,7 @@
             $('.counter').counterUp({
                 delay: 10,
                 time: 3000
-            });
+            }).data('tourvex-counter-initialized', true);
         }
 
         /* ==========================================================================
@@ -764,7 +755,7 @@
                 loop: true
             });
         }
-        
+
         /* ==========================================================================
            22. TESTIMONIALS 2 OWLCAROUSEL
            ========================================================================== */
@@ -803,151 +794,173 @@
             body.removeClass('loaded');
         }, 1500);
     });
-    
+
     /* ==========================================================================
         24. ELASTIC CARD ANIMATION
         ========================================================================== */
-        if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
-            const elasticCards = gsap.utils.toArray(".image-stack-card");
-            if (elasticCards.length) {
-                elasticCards.forEach((card, i) => {
-                    card.style.zIndex = elasticCards.length - i;
-                });
-                const elasticTl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: ".image-stack",
-                        start: "top 80%",
-                        end: "+=350",
-                        scrub: 1
-                    }
-                });
-                elasticCards.forEach((card, i) => {
-                    const offset = i - (elasticCards.length - 1) / 2;
-                    elasticTl.to(card, {
-                        x: offset * 180,
-                        rotation: offset * 8,
-                        ease: "none"
-                    }, 0);
-                });
-                let highestZ = elasticCards.length;
-                elasticCards.forEach(card => {
-                    card.addEventListener("mouseenter", () => {
-                        highestZ++;
-                        gsap.to(card, {
-                            zIndex: highestZ,
-                            scale: 1.05,
-                            y: -10,
-                            duration: 0.3,
-                            ease: "power2.out"
-                        });
-                    });
-                    card.addEventListener("mouseleave", () => {
-                        gsap.to(card, {
-                            scale: 1,
-                            y: 0,
-                            duration: 0.3,
-                            ease: "power2.out"
-                        });
+    if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
+        const elasticCards = gsap.utils.toArray(".image-stack-card");
+        if (elasticCards.length) {
+            elasticCards.forEach((card, i) => {
+                card.style.zIndex = elasticCards.length - i;
+            });
+            const elasticTl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: ".image-stack",
+                    start: "top 80%",
+                    end: "+=350",
+                    scrub: 1
+                }
+            });
+            elasticCards.forEach((card, i) => {
+                const offset = i - (elasticCards.length - 1) / 2;
+                elasticTl.to(card, {
+                    x: offset * 180,
+                    rotation: offset * 8,
+                    ease: "none"
+                }, 0);
+            });
+            let highestZ = elasticCards.length;
+            elasticCards.forEach(card => {
+                card.addEventListener("mouseenter", () => {
+                    highestZ++;
+                    gsap.to(card, {
+                        zIndex: highestZ,
+                        scale: 1.05,
+                        y: -10,
+                        duration: 0.3,
+                        ease: "power2.out"
                     });
                 });
-            }
+                card.addEventListener("mouseleave", () => {
+                    gsap.to(card, {
+                        scale: 1,
+                        y: 0,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+            });
         }
-    
+    }
+
     /* ==========================================================================
         25. TEAM SLIDER
         ========================================================================== */
-            var swiperTeam = new Swiper(".team-slider", {
-                slidesPerView: 4,
-                spaceBetween: 25,
-                loop: true,
-                speed: 900,
-                autoplay: false,
-                breakpoints: {
-                    0: {
-                        slidesPerView: 1
-                    },
-                    768: {
-                        slidesPerView: 2
-                    },
-                    1200: {
-                        slidesPerView: 4
-                    }
-                }
-            });
-    
+    var swiperTeam = new Swiper(".team-slider", {
+        slidesPerView: 4,
+        spaceBetween: 25,
+        loop: true,
+        speed: 900,
+        autoplay: false,
+        breakpoints: {
+            0: {
+                slidesPerView: 1
+            },
+            768: {
+                slidesPerView: 2
+            },
+            1200: {
+                slidesPerView: 4
+            }
+        }
+    });
+
     /* ==========================================================================
         26. GALLERY SCROLL SLIDER
         ========================================================================== */
-            var swiperGalleryScroll = new Swiper(".galleryscroll-slider", {
-                slidesPerView: 4,
-                spaceBetween: 25,
-                loop: true,
-                speed: 900,
-                autoplay: false,
-                breakpoints: {
-                    0: {
-                        slidesPerView: 1
-                    },
-                    768: {
-                        slidesPerView: 2
-                    },
-                    1200: {
-                        slidesPerView: 4
-                    }
-                }
-            });
-    
+    var swiperGalleryScroll = new Swiper(".galleryscroll-slider", {
+        slidesPerView: 4,
+        spaceBetween: 25,
+        loop: true,
+        speed: 900,
+        autoplay: false,
+        breakpoints: {
+            0: {
+                slidesPerView: 1
+            },
+            768: {
+                slidesPerView: 2
+            },
+            1200: {
+                slidesPerView: 4
+            }
+        }
+    });
+
     /* ==========================================================================
            18. STACKCARD ANIMATION
            ========================================================================== */
-        if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
-            var currentWidth = $(window).width();
-            if (currentWidth > 991) {
-                const fe = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: ".stsec .stack-title",
-                        start: "center center",
-                        endTrigger: ".stsec",
-                        end: "bottom bottom",
-                        pin: true,
-                        pinSpacing: false,
+    if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
+        var currentWidth = $(window).width();
+        if (currentWidth > 991) {
+            const fe = gsap.timeline({
+                scrollTrigger: {
+                    trigger: ".stsec .stack-title",
+                    start: "center center",
+                    endTrigger: ".stsec",
+                    end: "bottom bottom",
+                    pin: true,
+                    pinSpacing: false,
+                }
+            });
+            let cardsList = gsap.utils.toArray(".stackCard");
+            let stickDistance = 0;
+            let lastCardST = ScrollTrigger.create({
+                trigger: cardsList[cardsList.length - 1],
+                start: "center center"
+            });
+            cardsList.forEach((card, index) => {
+                ScrollTrigger.create({
+                    trigger: card,
+                    start: "center center",
+                    end: () => lastCardST.start + stickDistance,
+                    pin: true,
+                    pinSpacing: false,
+                    scrub: true,
+                    snap: true,
+                    ease: "power4.out",
+                    onUpdate: (self) => {
+                        const progress = self.progress;
+                        const EvenOdd = index % 2 === 0;
+                        gsap.to(card, {
+                            scaleX: 1 - progress * 0.2,
+                            x: index * 20,
+                            filter: `grayscale(${progress * 20}%)`,
+                            top: index * 20,
+                            rotate: EvenOdd ? -3 * progress : 3 * progress,
+                        });
                     }
                 });
-                let cardsList = gsap.utils.toArray(".stackCard");
-                let stickDistance = 0;
-                let lastCardST = ScrollTrigger.create({
-                    trigger: cardsList[cardsList.length - 1],
-                    start: "center center"
-                });
-                cardsList.forEach((card, index) => {
-                    ScrollTrigger.create({
-                        trigger: card,
-                        start: "center center",
-                        end: () => lastCardST.start + stickDistance,
-                        pin: true,
-                        pinSpacing: false,
-                        scrub: true,
-                        snap: true,
-                        ease: "power4.out",
-                        onUpdate: (self) => {
-                            const progress = self.progress;
-                            const EvenOdd = index % 2 === 0;
-                            gsap.to(card, {
-                                scaleX: 1 - progress * 0.2,
-                                x: index * 20,
-                                filter: `grayscale(${progress * 20}%)`,
-                                top: index * 20,
-                                rotate: EvenOdd ? -3 * progress : 3 * progress,
-                            });
-                        }
-                    });
-                });
-            }
+            });
         }
-    
-    
+    }
+
+
     /* Export global initializer for Next.js route transitions */
-    window.initTourvex = function() {
+    window.initTourvex = function () {
+        // Remove any animation state left by legacy scripts before measuring
+        // newly mounted route content. HomeHero also performs a pre-paint
+        // cleanup scoped to its own DOM subtree.
+        if (typeof gsap !== "undefined") {
+            gsap.killTweensOf('header.full-height, header.full-height *');
+            gsap.set('header.full-height .container, header.full-height .cont, header.full-height h6, header.full-height h2, header.full-height p, header.full-height .butn-arrow2', {
+                clearProps: 'opacity,visibility,transform,translate,scale,rotate'
+            });
+        }
+
+        // Discard triggers that still retain elements from the previous route,
+        // then create animations for newly mounted route content.
+        if (typeof ScrollTrigger !== "undefined") {
+            ScrollTrigger.getAll().forEach(function (trigger) {
+                var triggerElement = trigger.trigger;
+                if (triggerElement && !document.documentElement.contains(triggerElement)) {
+                    trigger.kill(true);
+                }
+            });
+        }
+        initScrollAnimations();
+
         // Dynamic background images
         $(".bg-img, section, [data-background]").each(function () {
             if ($(this).attr("data-background")) {
@@ -955,8 +968,39 @@
             }
         });
 
-        // WOW entrance animations
-        if (typeof WOW !== "undefined") {
+        // WOW's native window-scroll observer does not reliably detect elements
+        // inserted inside ScrollSmoother after a Next.js route transition.
+        // Back newly mounted WOW elements with ScrollTrigger instead.
+        if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
+            gsap.utils.toArray('.wow').forEach(function (element) {
+                if (element.dataset.tourvexWowInitialized) return;
+                element.dataset.tourvexWowInitialized = 'true';
+
+                var from = { autoAlpha: 0, y: 40 };
+                if (element.classList.contains('fadeInRight')) {
+                    from = { autoAlpha: 0, x: 60 };
+                } else if (element.classList.contains('fadeInLeft')) {
+                    from = { autoAlpha: 0, x: -60 };
+                } else if (element.classList.contains('fadeInDown')) {
+                    from = { autoAlpha: 0, y: -40 };
+                }
+
+                gsap.fromTo(element, from, {
+                    autoAlpha: 1,
+                    x: 0,
+                    y: 0,
+                    duration: 0.8,
+                    delay: parseFloat(element.getAttribute('data-wow-delay')) || 0,
+                    ease: 'power2.out',
+                    clearProps: 'opacity,visibility,transform',
+                    scrollTrigger: {
+                        trigger: element,
+                        start: 'top 92%',
+                        once: true
+                    }
+                });
+            });
+        } else if (typeof WOW !== "undefined") {
             new WOW({ animateClass: 'animated', offset: 100 }).init();
         }
 
@@ -976,43 +1020,62 @@
 
         // CounterUp
         if ($.fn.counterUp) {
-            $('.counter').counterUp({
-                delay: 10,
-                time: 3000
+            $('.counter').each(function () {
+                var $counter = $(this);
+                if (!$counter.data('tourvex-counter-initialized')) {
+                    $counter.counterUp({ delay: 10, time: 3000 });
+                    $counter.data('tourvex-counter-initialized', true);
+                }
             });
         }
 
-        // Marquee ticker
+        // Marquee ticker. The plugin duplicates its contents, so initialize
+        // only newly mounted elements.
         if ($.fn.marquee) {
-            $('.js-marquee-wrapper').marquee({
-                speed: 100,
-                gap: 30,
-                delayBeforeStart: 0,
-                direction: 'left',
-                duplicated: true,
-                pauseOnHover: true,
-                startVisible: true,
+            $('.js-marquee-wrapper').each(function () {
+                var $marquee = $(this);
+                if ($marquee.data('tourvex-marquee-initialized')) return;
+                $marquee.marquee({
+                    speed: 100,
+                    gap: 30,
+                    delayBeforeStart: 0,
+                    direction: 'left',
+                    duplicated: true,
+                    pauseOnHover: true,
+                    startVisible: true,
+                });
+                $marquee.data('tourvex-marquee-initialized', true);
             });
         }
 
-        // Magnific Popup
+        // Magnific Popup. Namespace the marker because re-binding the same
+        // elements on every route transition can produce duplicate callbacks.
         if ($.fn.magnificPopup) {
-            $('.gallery').magnificPopup({
-                delegate: '.popimg',
-                type: 'image',
-                gallery: { enabled: true }
+            $('.gallery').each(function () {
+                var $gallery = $(this);
+                if ($gallery.data('tourvex-popup-initialized')) return;
+                $gallery.magnificPopup({ delegate: '.popimg', type: 'image', gallery: { enabled: true } });
+                $gallery.data('tourvex-popup-initialized', true);
             });
-            $(".img-zoom").magnificPopup({
-                type: "image",
-                closeOnContentClick: true,
-                mainClass: "mfp-fade",
-                gallery: { enabled: true, navigateByImgClick: true, preload: [0, 1] }
-            });
-            $('.image-popup-vertical-fit').magnificPopup({
-                type: 'image',
-                closeOnContentClick: true,
-                mainClass: 'mfp-img-mobile',
-                image: { verticalFit: true }
+            $('.img-zoom, .image-popup-vertical-fit').each(function () {
+                var $popup = $(this);
+                if ($popup.data('tourvex-popup-initialized')) return;
+                if ($popup.hasClass('img-zoom')) {
+                    $popup.magnificPopup({
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-fade',
+                        gallery: { enabled: true, navigateByImgClick: true, preload: [0, 1] }
+                    });
+                } else {
+                    $popup.magnificPopup({
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-img-mobile',
+                        image: { verticalFit: true }
+                    });
+                }
+                $popup.data('tourvex-popup-initialized', true);
             });
         }
 
@@ -1020,23 +1083,29 @@
         if ($.fn.isotope) {
             var $grid = $('.gallery-wrap');
             if ($grid.length) {
-                $grid.isotope({
-                    itemSelector: '.gallery-item',
-                    percentPosition: true,
-                    layoutMode: 'masonry',
-                    transitionDuration: '0.6s'
+                $grid.each(function () {
+                    var $currentGrid = $(this);
+                    if (!$currentGrid.data('isotope')) {
+                        $currentGrid.isotope({
+                            itemSelector: '.gallery-item',
+                            percentPosition: true,
+                            layoutMode: 'masonry',
+                            transitionDuration: '0.6s'
+                        });
+                    }
+                    if ($.fn.imagesLoaded) {
+                        $currentGrid.imagesLoaded(function () {
+                            $currentGrid.isotope('layout');
+                        });
+                    }
                 });
-                if ($.fn.imagesLoaded) {
-                    $grid.imagesLoaded(function () {
-                        $grid.isotope('layout');
-                    });
+            }
+            $('.tours-isotope').each(function () {
+                var $tourGrid = $(this);
+                if (!$tourGrid.data('isotope')) {
+                    $tourGrid.isotope({ itemSelector: '.items' });
                 }
-            }
-            if ($('.tours-isotope').length) {
-                $('.tours-isotope').isotope({
-                    itemSelector: '.items'
-                });
-            }
+            });
         }
 
         // Testimonials2 expandable accordion items
@@ -1061,7 +1130,7 @@
         // Swiper Instances
         if (typeof Swiper !== "undefined") {
             // Parallax slider
-            if ($('.slider-prlx .parallax-slider').length) {
+            if ($('.slider-prlx .parallax-slider').length && !$('.slider-prlx .parallax-slider')[0].swiper) {
                 new Swiper('.slider-prlx .parallax-slider', {
                     speed: 1000,
                     autoplay: true,
@@ -1080,7 +1149,7 @@
             }
 
             // Testimonials Swiper
-            if ($('.swiper-testim').length) {
+            if ($('.swiper-testim').length && !$('.swiper-testim')[0].swiper) {
                 new Swiper('.swiper-testim', {
                     spaceBetween: 0,
                     speed: 1000,
@@ -1094,7 +1163,7 @@
             }
 
             // Team Slider
-            if ($('.team-slider').length) {
+            if ($('.team-slider').length && !$('.team-slider')[0].swiper) {
                 new Swiper(".team-slider", {
                     slidesPerView: 4,
                     spaceBetween: 25,
@@ -1110,7 +1179,7 @@
             }
 
             // Gallery Scroll Slider
-            if ($('.galleryscroll-slider').length) {
+            if ($('.galleryscroll-slider').length && !$('.galleryscroll-slider')[0].swiper) {
                 new Swiper(".galleryscroll-slider", {
                     slidesPerView: 4,
                     spaceBetween: 25,
@@ -1126,10 +1195,18 @@
             }
         }
 
-        // GSAP ScrollTrigger refresh
+        // Recalculate the transformed smooth-scroll content before measuring
+        // route-specific triggers.
+        if (typeof ScrollSmoother !== "undefined" && ScrollSmoother.get()) {
+            var smoother = ScrollSmoother.get();
+            smoother.effects('[data-speed], [data-lag]', {});
+            if (typeof smoother.refresh === 'function') smoother.refresh();
+        }
         if (typeof ScrollTrigger !== "undefined") {
-            ScrollTrigger.refresh();
+            ScrollTrigger.clearScrollMemory('manual');
+            ScrollTrigger.refresh(true);
+            ScrollTrigger.update();
         }
     };
-    
+
 })(jQuery);

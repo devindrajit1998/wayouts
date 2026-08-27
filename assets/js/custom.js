@@ -152,14 +152,12 @@
            ========================================================================== */
         wind.on("scroll", function () {
             var bodyScroll = wind.scrollTop(),
-                navbar = $(".navbar"),
-                logo = $(".navbar .logo > img");
+                navbar = $(".navbar");
             if (bodyScroll > 100) {
                 navbar.addClass("nav-scroll");
             } else {
                 navbar.removeClass("nav-scroll");
             }
-            logo.attr('src', 'assets/img/logo.png');
         });
 
         /* ==========================================================================
@@ -409,7 +407,7 @@
                 const tl = gsap.timeline();
                 const curve = "M0 502S175 272 500 272s500 230 500 230V0H0Z";
                 const flat = "M0 2S175 1 500 1s500 1 500 1V0H0Z";
-                tl.to(".loader-wrap-heading .load-text, .loader-wrap-heading .cont", {
+                tl.to(".loader-wrap-heading .load-text", {
                     delay: 1.5,
                     y: -100,
                     opacity: 0,
